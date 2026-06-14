@@ -1,0 +1,1940 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>成长中心 - D01 路演演示文稿</title>
+    <!-- 引入 Tailwind CSS 基础，但我们将依赖自定义的 Claude 变量 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        /* 引入优雅的衬线字体与无衬线字体 */
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+
+        :root {
+            /* Claude Brand Colors */
+            --claude-primary: #D97757;
+            --claude-primary-dark: #C4653A;
+            --claude-primary-light: #F5E6D3;
+            --claude-sand: #E8DDD3;
+            --claude-bg: #FAF8F5;
+            --claude-surface: #FFFFFF;
+            --claude-text-primary: #1A1A1A;
+            --claude-text-secondary: #4A4543;
+            --claude-text-tertiary: #9C9590;
+            --claude-success: #6B8F71;
+            --claude-warning: #D4A853;
+            --claude-error: #C75B5B;
+            --claude-shadow: rgba(193, 165, 140, 0.12);
+
+            /* Typography */
+            --font-display: 'Noto Serif SC', Georgia, 'Times New Roman', serif;
+            --font-body: 'Noto Sans SC', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--claude-bg);
+            color: var(--claude-text-primary);
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            line-height: 1.65;
+        }
+
+        .font-serif {
+            font-family: var(--font-display) !important;
+        }
+
+        /* 纸张噪点叠加，增加人文温度 */
+        .noise-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none; z-index: 9999;
+            background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)" opacity="0.04"/%3E%3C/svg%3E');
+        }
+
+        /* 缓慢流动的有机形状背景 */
+        .organic-bg {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: -1; overflow: hidden;
+        }
+        .blob {
+            position: absolute;
+            filter: blur(80px);
+            opacity: 0.6;
+            animation: float 20s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .blob-1 {
+            background: var(--claude-primary-light);
+            width: 600px; height: 600px; border-radius: 40% 60% 70% 30% / 40% 50% 60% 50%;
+            top: -10%; left: -10%;
+        }
+        .blob-2 {
+            background: var(--claude-sand);
+            width: 800px; height: 800px; border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+            bottom: -20%; right: -10%;
+            animation-delay: -5s;
+        }
+
+        @keyframes float {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(50px, 30px) rotate(10deg); }
+            100% { transform: translate(-30px, 50px) rotate(-10deg); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.85; transform: scale(1.08); }
+        }
+
+        @keyframes floatUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            50% { opacity: 0.9; transform: translateY(-30px) scale(1.15); }
+            100% { opacity: 0; transform: translateY(-60px) scale(0.8); }
+        }
+        @keyframes gachaShake {
+            0%, 100% { transform: translateX(0); }
+            10% { transform: translateX(-6px) rotate(-2deg); }
+            20% { transform: translateX(6px) rotate(2deg); }
+            30% { transform: translateX(-4px) rotate(-1deg); }
+            40% { transform: translateX(4px) rotate(1deg); }
+            50% { transform: translateX(-2px); }
+            60% { transform: translateX(2px); }
+            70% { transform: translateX(-1px); }
+            80% { transform: translateX(1px); }
+        }
+        @keyframes statusFlash {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); filter: brightness(1.3); }
+            100% { transform: scale(1); filter: brightness(1); }
+        }
+        @keyframes barFill {
+            from { width: 0%; }
+            to { width: 100%; }
+        }
+        @keyframes popIn {
+            0% { opacity: 0; transform: scale(0.5); }
+            70% { transform: scale(1.1); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        .score-float {
+            position: absolute;
+            pointer-events: none;
+            z-index: 100;
+            font-weight: 900;
+            animation: floatUp 1s ease-out forwards;
+        }
+        .gacha-shaking {
+            animation: gachaShake 0.6s ease-in-out;
+        }
+        .status-flashing {
+            animation: statusFlash 0.4s ease-in-out;
+        }
+        .import-filling .import-progress {
+            display: block !important;
+        }
+        .import-filling .import-progress > div {
+            animation: barFill 1.5s ease-in-out forwards;
+        }
+
+        /* 幻灯片容器 */
+        #presentation {
+            width: 100vw; height: 100vh;
+            position: relative;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .slide {
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            opacity: 0; visibility: hidden;
+            transition: opacity 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94), visibility 0.8s;
+            padding: 5rem 8rem;
+            display: flex; flex-direction: column; justify-content: center;
+        }
+
+        .slide.active {
+            opacity: 1; visibility: visible; z-index: 10;
+        }
+
+        /* 卡片样式 (Claude 风格) */
+        .claude-card {
+            background: var(--claude-surface);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 4px 24px var(--claude-shadow);
+            border: 1px solid rgba(232, 221, 211, 0.5);
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        /* Claude 强调色文本 */
+        .text-primary { color: var(--claude-primary); }
+        .text-secondary { color: var(--claude-text-secondary); }
+        .bg-primary { background-color: var(--claude-primary); }
+        .bg-primary-light { background-color: var(--claude-primary-light); }
+
+        /* 优雅的进场动画 */
+        .anim-up {
+            opacity: 0;
+            transform: translateY(24px);
+            transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .slide.active .anim-up {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .delay-1 { transition-delay: 0.15s; }
+        .delay-2 { transition-delay: 0.3s; }
+        .delay-3 { transition-delay: 0.45s; }
+
+        /* 进度条与控制栏 */
+        #controls {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            padding: 1.5rem 3rem;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 50;
+        }
+        #progress-bar-container {
+            position: fixed; top: 0; left: 0; width: 100%; height: 4px;
+            background: var(--claude-sand); z-index: 50;
+        }
+        #progress-bar {
+            height: 100%; background: var(--claude-primary);
+            width: 0%; transition: width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .nav-btn {
+            background: transparent;
+            border: 1px solid var(--claude-text-tertiary);
+            color: var(--claude-text-secondary);
+            padding: 0.5rem 1.5rem;
+            border-radius: 999px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex; align-items: center; gap: 0.5rem;
+            font-size: 14px; font-weight: 500;
+        }
+        .nav-btn:hover {
+            background: var(--claude-sand);
+            color: var(--claude-text-primary);
+            border-color: var(--claude-text-secondary);
+        }
+
+        /* 排版辅助 */
+        .title-group {
+            margin-bottom: 3rem;
+            max-width: 900px;
+        }
+        .title-group h2 {
+            font-size: 3.5rem;
+            font-weight: 600;
+            line-height: 1.2;
+            color: var(--claude-text-primary);
+            margin-bottom: 1rem;
+        }
+        .title-group p {
+            font-size: 1.8rem;
+            color: var(--claude-text-secondary);
+            font-weight: 300;
+        }
+        .title-group .accent-line {
+            width: 60px; height: 3px;
+            background-color: var(--claude-primary);
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="noise-overlay"></div>
+    
+    <div class="organic-bg">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <div id="progress-bar-container"><div id="progress-bar"></div></div>
+
+    <div id="presentation">
+
+        <!-- 1. 封面 (极简、去除了所有内部讲义) -->
+        <div class="slide active">
+            <div class="flex flex-col h-full justify-center anim-up pl-12">
+                <div class="w-16 h-1 bg-primary mb-8"></div>
+                <h1 class="font-serif text-[6rem] font-bold text-[#1A1A1A] leading-tight tracking-tight mb-6">成长中心</h1>
+                <h2 class="text-[2.2rem] font-light text-[#4A4543] mb-12 max-w-4xl leading-relaxed">
+                    把课堂表现变成孩子成长、<br>
+                    家长感知和校区运营动作。
+                </h2>
+                <p class="text-xl text-[#9C9590] flex items-center gap-2">
+                    <i data-lucide="sparkles" class="text-primary w-5 h-5"></i>
+                    课堂成长激励系统
+                </p>
+            </div>
+        </div>
+
+        <!-- 2. 今天要解决的问题 -->
+        <div class="slide">
+            <div class="h-full flex flex-col justify-center">
+                <div class="title-group anim-up">
+                    <div class="accent-line"></div>
+                    <h2 class="font-serif">痛点与现状</h2>
+                    <p>过去课堂激励有记录，但家长不一定能感知。</p>
+                </div>
+                <div class="grid grid-cols-3 gap-8 w-full mt-4">
+                    <div class="claude-card anim-up delay-1 hover:-translate-y-1">
+                        <div class="w-14 h-14 bg-primary-light rounded-2xl flex items-center justify-center mb-6">
+                            <i data-lucide="message-square-off" class="text-primary" size="28"></i>
+                        </div>
+                        <h3 class="font-serif text-2xl font-bold mb-4 text-[#1A1A1A]">成就感易散掉</h3>
+                        <p class="text-[#4A4543] text-lg">老师表扬常停留在口头，缺乏体系化承接，孩子的成就感容易随着下课而消散。</p>
+                    </div>
+                    <div class="claude-card anim-up delay-2 hover:-translate-y-1">
+                        <div class="w-14 h-14 bg-primary-light rounded-2xl flex items-center justify-center mb-6">
+                            <i data-lucide="eye-off" class="text-primary" size="28"></i>
+                        </div>
+                        <h3 class="font-serif text-2xl font-bold mb-4 text-[#1A1A1A]">缺乏具体证据</h3>
+                        <p class="text-[#4A4543] text-lg">家长只听到“表现不错”，但看不到具体证据，家校沟通缺乏抓手。</p>
+                    </div>
+                    <div class="claude-card anim-up delay-3 hover:-translate-y-1">
+                        <div class="w-14 h-14 bg-primary-light rounded-2xl flex items-center justify-center mb-6">
+                            <i data-lucide="database" class="text-primary" size="28"></i>
+                        </div>
+                        <h3 class="font-serif text-2xl font-bold mb-4 text-[#1A1A1A]">数据难以沉淀</h3>
+                        <p class="text-[#4A4543] text-lg">校区有大量零散的课堂数据，但很难沉淀并转化为对续班、转介绍有用的运营动作。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. 系统是什么 (大字号，高对比排版) -->
+        <div class="slide">
+            <div class="h-full flex flex-col justify-center w-full">
+                <div class="title-group anim-up text-center mx-auto mb-16">
+                    <div class="accent-line mx-auto"></div>
+                    <h2 class="font-serif">三端联动的成长反馈系统</h2>
+                    <p>成长中心<strong class="text-primary font-bold">不是</strong>单独的积分工具。</p>
+                </div>
+                
+                <div class="grid grid-cols-3 gap-10 w-full anim-up delay-1">
+                    <!-- 卡片 1 -->
+                    <div class="claude-card !p-10 text-center hover:-translate-y-2">
+                        <i data-lucide="monitor" class="text-primary w-16 h-16 mx-auto mb-6"></i>
+                        <h3 class="font-serif text-4xl font-bold mb-8 text-[#1A1A1A]">管理后台</h3>
+                        <ul class="text-left space-y-5 text-2xl text-[#4A4543] inline-block">
+                            <li class="flex items-center gap-3"><span class="w-2 h-2 rounded-full bg-primary"></span> 导入数据</li>
+                            <li class="flex items-center gap-3"><span class="w-2 h-2 rounded-full bg-primary"></span> 配置规则</li>
+                            <li class="flex items-center gap-3"><span class="w-2 h-2 rounded-full bg-primary"></span> 管理奖励</li>
+                            <li class="flex items-center gap-3"><span class="w-2 h-2 rounded-full bg-primary"></span> 看运营指标</li>
+                        </ul>
+                    </div>
+
+                    <!-- 卡片 2 (稍微凸显) -->
+                    <div class="claude-card !p-10 text-center transform scale-105 shadow-xl border-t-4 border-t-[#D97757]">
+                        <i data-lucide="airplay" class="text-primary w-16 h-16 mx-auto mb-6"></i>
+                        <h3 class="font-serif text-4xl font-bold mb-8 text-[#1A1A1A]">课堂大屏</h3>
+                        <ul class="text-left space-y-5 text-2xl text-[#4A4543] inline-block">
+                            <li class="flex items-center gap-3"><span class="w-2 h-2 rounded-full bg-primary"></span> 快捷开课</li>
+                            <li class="flex items-center gap-3"><span class="w-2 h-2 rounded-full bg-primary"></span> 随堂加分</li>
+                            <li class="flex items-center gap-3"><span class="w-2 h-2 rounded-full bg-primary"></span> 防呆撤回</li>
+                            <li class="flex items-center gap-3"><span class="w-2 h-2 rounded-full bg-primary"></span> 班级成长展示</li>
+                        </ul>
+                    </div>
+
+                    <!-- 卡片 3 -->
+                    <div class="claude-card !p-10 text-center hover:-translate-y-2">
+                        <i data-lucide="smartphone" class="text-primary w-16 h-16 mx-auto mb-6"></i>
+                        <h3 class="font-serif text-4xl font-bold mb-8 text-[#1A1A1A]">学生 / 家长端</h3>
+                        <ul class="text-left space-y-5 text-2xl text-[#4A4543] inline-block">
+                            <li class="flex items-center gap-3"><span class="w-2 h-2 rounded-full bg-primary"></span> 看成长报告</li>
+                            <li class="flex items-center gap-3"><span class="w-2 h-2 rounded-full bg-primary"></span> 看精灵养成</li>
+                            <li class="flex items-center gap-3"><span class="w-2 h-2 rounded-full bg-primary"></span> 看记录证据</li>
+                            <li class="flex items-center gap-3"><span class="w-2 h-2 rounded-full bg-primary"></span> 兑换奖励</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. 核心闭环 -->
+        <div class="slide">
+            <div class="grid grid-cols-2 gap-16 h-full items-center">
+                <div class="anim-up">
+                    <div class="title-group">
+                        <div class="accent-line"></div>
+                        <h2 class="font-serif">核心闭环</h2>
+                        <p>一次课堂记录，形成四个自然结果。</p>
+                    </div>
+                    <div class="space-y-12 mt-12 relative">
+                        <div class="absolute left-4 top-4 bottom-4 w-px bg-[#E8DDD3] -z-10"></div>
+                        
+                        <div class="flex items-start gap-6 anim-up delay-1 bg-[#FAF8F5]">
+                            <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold shrink-0 mt-1">1</div>
+                            <div>
+                                <h3 class="font-serif text-2xl font-bold text-[#1A1A1A]">老师动作</h3>
+                                <p class="text-xl text-[#4A4543] mt-2">老师在课堂上给出成长记录（表扬/加分）。</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start gap-6 anim-up delay-2 bg-[#FAF8F5]">
+                            <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold shrink-0 mt-1">2</div>
+                            <div>
+                                <h3 class="font-serif text-2xl font-bold text-[#1A1A1A]">资产下发</h3>
+                                <p class="text-xl text-[#4A4543] mt-2">学生实时获得积分、成长值或扭蛋券。</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex items-start gap-6 anim-up delay-3 bg-[#FAF8F5]">
+                            <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center font-bold shrink-0 mt-1">3</div>
+                            <div>
+                                <h3 class="font-serif text-2xl font-bold text-[#1A1A1A]">持续激励</h3>
+                                <p class="text-xl text-[#4A4543] mt-2">促成精灵升级、扭蛋，或在奖励中心形成期待。</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start gap-6 anim-up delay-3 bg-[#FAF8F5]">
+                            <div class="w-8 h-8 rounded-full bg-[#6B8F71] text-white flex items-center justify-center font-bold shrink-0 mt-1">4</div>
+                            <div>
+                                <h3 class="font-serif text-2xl font-bold text-[#1A1A1A]">家长感知</h3>
+                                <p class="text-xl text-[#4A4543] mt-2">家长在手机端同步看到成长报告和课堂证据。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 两部手机：家长端数据看板 + 学生端精灵养成 -->
+                <div class="anim-up delay-2 h-[72vh] flex items-center justify-center gap-6">
+                    <!-- 手机1: 家长端看板 -->
+                    <div class="w-[255px] h-[545px] rounded-[2.5rem] border-[7px] border-[#1A1A1A] shadow-2xl overflow-hidden relative flex flex-col shrink-0" style="background: linear-gradient(180deg, #FAF8F5 0%, #FAF8F5 100%);">
+                        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[68px] h-[20px] bg-[#1A1A1A] rounded-b-2xl z-50"></div>
+                        <div class="flex-1 overflow-hidden pt-16 pb-3 px-4 flex flex-col gap-2.5">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="text-sm font-bold text-[#1A1A1A] leading-tight">张朱奕家长</div>
+                                    <div class="text-[11px] text-[#9C9590] mt-0.5">早上好 ☀️</div>
+                                </div>
+                                <div class="rounded-2xl px-3.5 py-2.5 text-center shadow-md" style="background: linear-gradient(135deg, #D97757, #C4653A);">
+                                    <div class="text-[10px] text-white/80 mb-0.5">高途陪伴</div>
+                                    <div class="text-2xl font-black text-white leading-none">141<span class="text-xs font-normal ml-0.5">天</span></div>
+                                </div>
+                            </div>
+                            <div class="rounded-2xl p-3.5 shadow-sm border" style="background: white; border-color: #E8DDD3;">
+                                <div class="flex justify-between items-center mb-3">
+                                    <span class="text-xs font-bold text-[#1A1A1A]">✨ 能力闪光点</span>
+                                    <span class="text-[10px] text-[#9C9590] bg-[#FAF8F5] px-2 py-0.5 rounded-full">本周 23 项</span>
+                                </div>
+                                <div class="flex justify-between text-center">
+                                    <div class="flex flex-col items-center gap-1"><span class="text-lg">🎤</span><span class="text-[10px] font-bold text-[#4A4543]">主动回答</span><span class="text-xs font-black text-[#1A1A1A]">10次</span></div>
+                                    <div class="flex flex-col items-center gap-1"><span class="text-lg">⭐</span><span class="text-[10px] font-bold text-[#4A4543]">积极参与</span><span class="text-xs font-black text-[#1A1A1A]">10次</span></div>
+                                    <div class="flex flex-col items-center gap-1"><span class="text-lg">🎯</span><span class="text-[10px] font-bold text-[#4A4543]">明显进步</span><span class="text-xs font-black text-[#1A1A1A]">1次</span></div>
+                                    <div class="flex flex-col items-center gap-1"><span class="text-lg">🤝</span><span class="text-[10px] font-bold text-[#4A4543]">帮助同学</span><span class="text-xs font-black text-[#1A1A1A]">1次</span></div>
+                                </div>
+                            </div>
+                            <div class="rounded-2xl p-3.5 shadow-sm border" style="background: white; border-color: #E8DDD3;">
+                                <div class="flex justify-between items-center mb-2.5">
+                                    <span class="text-xs font-bold text-[#1A1A1A]">📊 这周趋势</span>
+                                    <span class="text-[10px] text-[#6B8F71]">稳定发挥</span>
+                                </div>
+                                <div class="flex justify-between items-end h-16 px-1">
+                                    <div class="flex flex-col items-center gap-1"><div class="w-6 rounded-t" style="height: 8px; background: #E8DDD3;"></div><span class="text-[9px] text-[#9C9590]">前3周</span></div>
+                                    <div class="flex flex-col items-center gap-1"><div class="w-6 rounded-t" style="height: 12px; background: #E8DDD3;"></div><span class="text-[9px] text-[#9C9590]">前2周</span></div>
+                                    <div class="flex flex-col items-center gap-1"><div class="w-6 rounded-t" style="height: 16px; background: #E8DDD3;"></div><span class="text-[9px] text-[#9C9590]">前1周</span></div>
+                                    <div class="flex flex-col items-center gap-1"><span class="text-xs font-bold text-[#D97757]">70</span><div class="w-6 rounded-t relative overflow-hidden" style="height: 38px; background: linear-gradient(180deg, #D97757, #C4653A); box-shadow: 0 4px 12px rgba(217,119,87,0.35);"><div class="absolute inset-0" style="background: linear-gradient(180deg, rgba(255,255,255,0.25), transparent);"></div></div><span class="text-[9px] font-bold text-[#D97757]">本周</span></div>
+                                </div>
+                            </div>
+                            <div class="rounded-xl p-3 text-center border" style="background: #FAF8F5; border-color: #E8DDD3;">
+                                <div class="text-[10px] text-[#9C9590] mb-1">💬 王老师寄语</div>
+                                <div class="text-xs text-[#4A4543] leading-relaxed">今天的<span class="font-bold text-[#1A1A1A]">「主动回答」</span>很亮眼，我有认真看到。</div>
+                            </div>
+                            <div class="rounded-xl p-3 flex justify-between items-center border" style="background: white; border-color: #E8DDD3;">
+                                <div>
+                                    <div class="text-[10px] font-bold text-[#D97757]">⏰ 下一次课</div>
+                                    <div class="text-xs font-bold text-[#1A1A1A]">周六 10:30</div>
+                                </div>
+                                <span class="text-[10px] text-white px-3 py-1.5 rounded-xl font-bold" style="background: #D97757;">查看课表</span>
+                            </div>
+                        </div>
+                        <div class="h-[44px] flex justify-around items-center border-t text-base" style="background: rgba(255,255,255,0.9); border-color: #E8DDD3/50;">
+                            <span style="color: #D97757;">📋</span><span style="color: #9C9590;">👻</span><span style="color: #9C9590;">🛍️</span><span style="color: #9C9590;">👤</span>
+                        </div>
+                    </div>
+                    <!-- 手机2: 学生端精灵养成 -->
+                    <div class="w-[255px] h-[545px] rounded-[2.5rem] border-[7px] border-[#1A1A1A] shadow-2xl overflow-hidden relative flex flex-col shrink-0" style="background: linear-gradient(180deg, #FAF8F5 0%, #F5E6D3 100%);">
+                        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[68px] h-[20px] bg-[#1A1A1A] rounded-b-2xl z-50"></div>
+                        <div class="flex-1 overflow-hidden pt-16 pb-3 px-4 flex flex-col items-center gap-2.5">
+                            <div class="flex justify-between items-center w-full">
+                                <span class="text-[13px] font-bold text-[#1A1A1A]">张朱奕，继续发光</span>
+                                <span class="text-[11px] text-white px-3 py-1 rounded-full font-bold" style="background: #D97757;">Lv.1</span>
+                            </div>
+                            <!-- 精灵 + 圆环 -->
+                            <div class="relative w-28 h-28 flex items-center justify-center my-1">
+                                <svg class="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 100 100">
+                                    <circle cx="50" cy="50" r="42" fill="none" stroke="#E8DDD3" stroke-width="5"/>
+                                    <circle cx="50" cy="50" r="42" fill="none" stroke="#D97757" stroke-width="5" stroke-dasharray="264" stroke-dashoffset="79" stroke-linecap="round"/>
+                                </svg>
+                                <svg width="52" height="52" viewBox="0 0 100 100" class="z-10" style="animation: float 3s ease-in-out infinite;">
+                                    <defs><radialGradient id="g5" cx="50%" cy="50%" r="50%"><stop offset="0%" stop-color="#D97757" stop-opacity="0.3"/><stop offset="100%" stop-color="#D97757" stop-opacity="0"/></radialGradient></defs>
+                                    <circle cx="50" cy="50" r="45" fill="url(#g5)"/>
+                                    <path d="M 50,75 C 25,75 25,30 50,25 C 75,30 75,75 50,75 Z" fill="#D97757"/>
+                                    <path d="M 35,35 Q 28,18 45,28 Z" fill="#C4653A"/>
+                                    <path d="M 65,35 Q 72,18 55,28 Z" fill="#C4653A"/>
+                                    <circle cx="43" cy="48" r="4" fill="#1A1A1A"/>
+                                    <circle cx="57" cy="48" r="4" fill="#1A1A1A"/>
+                                    <circle cx="42" cy="47" r="1.5" fill="white"/>
+                                    <circle cx="56" cy="47" r="1.5" fill="white"/>
+                                    <path d="M 50,25 Q 46,16 50,12 Q 54,16 50,25 Z" fill="#D4A853"/>
+                                </svg>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-sm font-serif font-black text-[#1A1A1A]">初阶精灵 <span class="text-[10px] text-[#D97757] bg-[#F5E6D3] px-1.5 py-0.5 rounded">70成长值</span></div>
+                                <div class="text-[10px] text-[#4A4543] mt-1">距下一阶段还差 <b>30</b> 成长值</div>
+                            </div>
+                            <div class="flex gap-2 text-[10px]">
+                                <span class="px-2 py-0.5 rounded-full border" style="background: #FFF0E8; color: #C75B5B; border-color: #FFD0C0;">火系</span>
+                                <span class="px-2 py-0.5 rounded-full border" style="background: #FAF8F5; color: #9C9590; border-color: #E8DDD3;">普通</span>
+                            </div>
+                            <div class="grid grid-cols-4 gap-2 w-full mt-1">
+                                <div class="bg-white rounded-xl p-2.5 text-center border border-[#E8DDD3] shadow-sm"><div class="text-base">✅</div><div class="text-[9px] text-[#4A4543] mt-0.5">签到</div><div class="text-[10px] font-bold text-[#D97757]">+2</div></div>
+                                <div class="bg-white rounded-xl p-2.5 text-center border border-[#E8DDD3] shadow-sm"><div class="text-base">📊</div><div class="text-[9px] text-[#4A4543] mt-0.5">积分</div><div class="text-sm font-black text-[#1A1A1A]">70</div></div>
+                                <div class="bg-white rounded-xl p-2.5 text-center border border-[#E8DDD3] shadow-sm"><div class="text-base">🗺️</div><div class="text-[9px] text-[#4A4543] mt-0.5">路线</div><div class="text-[10px] font-bold text-[#1A1A1A]">查看</div></div>
+                                <div class="bg-white rounded-xl p-2.5 text-center border border-[#E8DDD3] shadow-sm"><div class="text-base">📅</div><div class="text-[9px] text-[#4A4543] mt-0.5">上课</div><div class="text-[9px] text-[#9C9590]">待同步</div></div>
+                            </div>
+                        </div>
+                        <div class="h-[44px] flex justify-around items-center border-t text-base" style="background: rgba(255,255,255,0.9); border-color: #E8DDD3/50;">
+                            <span style="color: #9C9590;">📋</span><span style="color: #D97757;">👻</span><span style="color: #9C9590;">🛍️</span><span style="color: #9C9590;">👤</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. 三个口径要先统一 -->
+        <div class="slide">
+            <div class="h-full flex flex-col justify-center max-w-5xl mx-auto w-full">
+                <div class="title-group anim-up text-center mx-auto mb-12">
+                    <div class="accent-line mx-auto"></div>
+                    <h2 class="font-serif">概念区分：三个统一口径</h2>
+                    <p>各有用途，对家长的解释绝不混淆。</p>
+                </div>
+                
+                <div class="claude-card anim-up delay-1 !p-0 overflow-hidden">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="bg-[#F5E6D3] text-[#1A1A1A]">
+                                <th class="p-6 text-xl font-serif font-bold w-1/4">资产名称</th>
+                                <th class="p-6 text-xl font-serif font-bold w-1/3">系统用途</th>
+                                <th class="p-6 text-xl font-serif font-bold">对家长解释口径</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-[#E8DDD3]">
+                            <tr>
+                                <td class="p-6">
+                                    <div class="flex items-center gap-3">
+                                        <i data-lucide="coins" class="text-[#D4A853]"></i>
+                                        <span class="text-2xl font-bold text-[#1A1A1A]">积分</span>
+                                    </div>
+                                </td>
+                                <td class="p-6 text-[#4A4543] text-lg">用于奖励中心实物兑换</td>
+                                <td class="p-6 text-[#1A1A1A] text-lg">孩子的<strong class="text-primary">阶段性鼓励</strong>与目标期待</td>
+                            </tr>
+                            <tr>
+                                <td class="p-6">
+                                    <div class="flex items-center gap-3">
+                                        <i data-lucide="trending-up" class="text-[#6B8F71]"></i>
+                                        <span class="text-2xl font-bold text-[#1A1A1A]">成长值</span>
+                                    </div>
+                                </td>
+                                <td class="p-6 text-[#4A4543] text-lg">用于精灵升级和阶段标识</td>
+                                <td class="p-6 text-[#1A1A1A] text-lg">孩子<strong class="text-[#6B8F71]">长期成长沉淀</strong>的直观展现</td>
+                            </tr>
+                            <tr>
+                                <td class="p-6">
+                                    <div class="flex items-center gap-3">
+                                        <i data-lucide="ticket" class="text-primary"></i>
+                                        <span class="text-2xl font-bold text-[#1A1A1A]">扭蛋券</span>
+                                    </div>
+                                </td>
+                                <td class="p-6 text-[#4A4543] text-lg">攒券抽取虚拟装扮</td>
+                                <td class="p-6 text-[#1A1A1A] text-lg">课堂<strong class="text-primary">即时惊喜</strong>，绝不等于充值消费</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 6. 老师怎么用：三步 -->
+        <div class="slide">
+            <div class="grid grid-cols-2 gap-16 h-full items-center">
+                <div class="anim-up">
+                    <div class="title-group">
+                        <div class="accent-line"></div>
+                        <h2 class="font-serif">极简操作：老师怎么用</h2>
+                        <p>只需三步，回归教学本质。</p>
+                    </div>
+                    
+                    <div class="space-y-10 mt-8">
+                        <div class="anim-up delay-1">
+                            <h3 class="font-serif text-3xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-3">
+                                <span class="text-primary text-4xl">1.</span> 进班开课
+                            </h3>
+                            <p class="text-[#4A4543] text-xl ml-10">在大屏选择对应校区和班级，一键激活课堂状态。</p>
+                        </div>
+                        <div class="anim-up delay-2">
+                            <h3 class="font-serif text-3xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-3">
+                                <span class="text-primary text-4xl">2.</span> 选中记录
+                            </h3>
+                            <p class="text-[#4A4543] text-xl ml-10">点击学生头像，直接选择对应的固定成长记录项。</p>
+                        </div>
+                        <div class="anim-up delay-3">
+                            <h3 class="font-serif text-3xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-3">
+                                <span class="text-primary text-4xl">3.</span> 确认与容错
+                            </h3>
+                            <p class="text-[#4A4543] text-xl ml-10">极速下发，并提供 <strong class="text-[#D97757]">4秒撤回</strong> 功能，完美解决手抖误触。</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- 课堂大屏 CSS 手绘界面 -->
+                <div class="anim-up delay-2 w-full h-[65vh] rounded-3xl overflow-hidden shadow-lg border border-[#E8DDD3] flex flex-col relative" style="background: linear-gradient(135deg, #faf5ee 0%, #f2eadf 40%, #fdf3e7 100%);">
+                    <!-- 顶部状态栏 -->
+                    <div class="flex items-center justify-between px-4 py-3 border-b border-[#E8DDD3]/60" style="background: rgba(255,255,255,0.7); backdrop-filter: blur(8px);">
+                        <div class="flex items-center gap-2.5">
+                            <div class="w-7 h-7 rounded-lg flex items-center justify-center" style="background: #ef6f4d;">
+                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                            </div>
+                            <div>
+                                <div class="text-xs font-bold text-[#31251a] leading-tight">三年级 · 数学提高班</div>
+                                <div class="text-[10px] text-[#876f59]">王老师 · 今日第2节</div>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-bold text-[#ef6f4d] bg-[#fff0e8] px-2.5 py-1 rounded-full">⏱ 00:23:15</span>
+                            <span class="text-[10px] text-white px-2.5 py-1 rounded-full cursor-pointer" style="background: #C75B5B;">结束</span>
+                        </div>
+                    </div>
+                    <!-- 学生网格 -->
+                    <div class="flex-1 p-3 grid grid-cols-5 gap-2 content-start overflow-hidden">
+                        <!-- Row 1 -->
+                        <div class="rounded-2xl p-2 text-center border transition-all" style="background: rgba(255,255,255,0.9); border-color: #E8DDD3;">
+                            <div class="w-10 h-10 mx-auto rounded-full mb-1 flex items-center justify-center text-sm" style="background: linear-gradient(135deg, #FFE0D0, #FFD0C0);">👦</div>
+                            <div class="text-[10px] font-bold text-[#31251a] truncate">张小明</div>
+                            <div class="text-[10px] font-bold text-[#ef6f4d] mt-0.5">12分</div>
+                        </div>
+                        <div class="rounded-2xl p-2 text-center border transition-all" style="background: rgba(255,255,255,0.9); border-color: #E8DDD3;">
+                            <div class="w-10 h-10 mx-auto rounded-full mb-1 flex items-center justify-center text-sm" style="background: linear-gradient(135deg, #FFE0D0, #FFD0C0);">👧</div>
+                            <div class="text-[10px] font-bold text-[#31251a] truncate">李小花</div>
+                            <div class="text-[10px] font-bold text-[#ef6f4d] mt-0.5">8分</div>
+                        </div>
+                        <div class="rounded-2xl p-2 text-center border-2 relative" style="background: rgba(255,240,230,0.95); border-color: #ef6f4d; box-shadow: 0 0 0 3px rgba(239,111,77,0.15);">
+                            <div class="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full flex items-center justify-center text-[10px] text-white font-bold animate-pulse" style="background: #ef6f4d;">+3</div>
+                            <div class="w-10 h-10 mx-auto rounded-full mb-1 flex items-center justify-center text-sm" style="background: linear-gradient(135deg, #FFD0C0, #FFC0A0);">👦</div>
+                            <div class="text-[10px] font-bold text-[#31251a] truncate">王大伟</div>
+                            <div class="text-[10px] font-bold text-[#ef6f4d] mt-0.5">15分</div>
+                        </div>
+                        <div class="rounded-2xl p-2 text-center border transition-all" style="background: rgba(255,255,255,0.9); border-color: #E8DDD3;">
+                            <div class="w-10 h-10 mx-auto rounded-full mb-1 flex items-center justify-center text-sm" style="background: linear-gradient(135deg, #E0E8FF, #D0D8FF);">👧</div>
+                            <div class="text-[10px] font-bold text-[#31251a] truncate">赵小丽</div>
+                            <div class="text-[10px] font-bold text-[#ef6f4d] mt-0.5">10分</div>
+                        </div>
+                        <div class="rounded-2xl p-2 text-center border transition-all" style="background: rgba(255,255,255,0.9); border-color: #E8DDD3;">
+                            <div class="w-10 h-10 mx-auto rounded-full mb-1 flex items-center justify-center text-sm" style="background: linear-gradient(135deg, #E0FFE0, #D0F0D0);">👦</div>
+                            <div class="text-[10px] font-bold text-[#31251a] truncate">陈小刚</div>
+                            <div class="text-[10px] font-bold text-[#ef6f4d] mt-0.5">6分</div>
+                        </div>
+                        <!-- Row 2 -->
+                        <div class="rounded-2xl p-2 text-center border transition-all" style="background: rgba(255,255,255,0.9); border-color: #E8DDD3;">
+                            <div class="w-10 h-10 mx-auto rounded-full mb-1 flex items-center justify-center text-sm" style="background: linear-gradient(135deg, #FFE8FF, #FFD8F0);">👧</div>
+                            <div class="text-[10px] font-bold text-[#31251a] truncate">刘小雨</div>
+                            <div class="text-[10px] font-bold text-[#ef6f4d] mt-0.5">9分</div>
+                        </div>
+                        <div class="rounded-2xl p-2 text-center border transition-all" style="background: rgba(255,255,255,0.9); border-color: #E8DDD3;">
+                            <div class="w-10 h-10 mx-auto rounded-full mb-1 flex items-center justify-center text-sm" style="background: linear-gradient(135deg, #FFF8E0, #FFE8C0);">👦</div>
+                            <div class="text-[10px] font-bold text-[#31251a] truncate">周小杰</div>
+                            <div class="text-[10px] font-bold text-[#ef6f4d] mt-0.5">11分</div>
+                        </div>
+                        <div class="rounded-2xl p-2 text-center border transition-all" style="background: rgba(255,255,255,0.9); border-color: #E8DDD3;">
+                            <div class="w-10 h-10 mx-auto rounded-full mb-1 flex items-center justify-center text-sm" style="background: linear-gradient(135deg, #FFE0D0, #FFD0C0);">👧</div>
+                            <div class="text-[10px] font-bold text-[#31251a] truncate">吴小芳</div>
+                            <div class="text-[10px] font-bold text-[#ef6f4d] mt-0.5">7分</div>
+                        </div>
+                        <div class="rounded-2xl p-2 text-center border transition-all" style="background: rgba(255,255,255,0.9); border-color: #E8DDD3;">
+                            <div class="w-10 h-10 mx-auto rounded-full mb-1 flex items-center justify-center text-sm" style="background: linear-gradient(135deg, #E0F0FF, #C0E0FF);">👦</div>
+                            <div class="text-[10px] font-bold text-[#31251a] truncate">郑小文</div>
+                            <div class="text-[10px] font-bold text-[#ef6f4d] mt-0.5">5分</div>
+                        </div>
+                        <div class="rounded-2xl p-2 text-center border transition-all" style="background: rgba(255,255,255,0.9); border-color: #E8DDD3;">
+                            <div class="w-10 h-10 mx-auto rounded-full mb-1 flex items-center justify-center text-sm" style="background: linear-gradient(135deg, #FFD8D8, #FFC8C8);">👧</div>
+                            <div class="text-[10px] font-bold text-[#31251a] truncate">孙小梅</div>
+                            <div class="text-[10px] font-bold text-[#ef6f4d] mt-0.5">14分</div>
+                        </div>
+                    </div>
+                    <!-- 底部分值快捷栏 -->
+                    <div class="px-3 py-2.5 border-t border-[#E8DDD3]/60 flex gap-2 justify-center flex-wrap" style="background: rgba(255,255,255,0.85); backdrop-filter: blur(8px);">
+                        <span class="text-[10px] px-3 py-1.5 rounded-full font-bold cursor-pointer border score-action" data-score="2" onclick="classroomScore(this)" style="background: #F5E6D3; color: #31251a; border-color: #E8DDD3;">👍 课堂表现 +2</span>
+                        <span class="text-[10px] px-3 py-1.5 rounded-full font-bold cursor-pointer border score-action" data-score="3" onclick="classroomScore(this)" style="background: #F5E6D3; color: #31251a; border-color: #E8DDD3;">🎤 主动回答 +3</span>
+                        <span class="text-[10px] px-3 py-1.5 rounded-full font-bold cursor-pointer border score-action" data-score="2" onclick="classroomScore(this)" style="background: #F5E6D3; color: #31251a; border-color: #E8DDD3;">🤝 帮助同学 +2</span>
+                        <span class="text-[10px] px-3 py-1.5 rounded-full font-bold cursor-pointer border score-action" data-score="5" onclick="classroomScore(this)" style="background: white; color: #D97757; border-color: #D97757;">✏️ 特殊表现 (需评语)</span>
+                    </div>
+                    <!-- 撤回提示浮层 -->
+                    <div class="absolute bottom-20 left-1/2 -translate-x-1/2 bg-[#1A1A1A] text-white text-[10px] px-4 py-1.5 rounded-full flex items-center gap-2 shadow-lg" style="animation: pulse 2s infinite;">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        4秒内可撤回 · 点击撤销
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 7. 老师不增加负担 -->
+        <div class="slide">
+            <div class="grid grid-cols-2 gap-16 h-full items-center">
+                <div class="anim-up">
+                    <div class="title-group">
+                        <div class="accent-line"></div>
+                        <h2 class="font-serif">不增加额外负担</h2>
+                        <p>常用动作做成固定项，大幅减少手填。</p>
+                    </div>
+                    
+                    <div class="flex flex-wrap gap-4 mt-8 anim-up delay-1">
+                        <span class="px-6 py-3 bg-[#F5E6D3] text-[#1A1A1A] rounded-full text-xl font-medium border border-[#E8DDD3]">课堂表现</span>
+                        <span class="px-6 py-3 bg-[#F5E6D3] text-[#1A1A1A] rounded-full text-xl font-medium border border-[#E8DDD3]">主动回答</span>
+                        <span class="px-6 py-3 bg-[#F5E6D3] text-[#1A1A1A] rounded-full text-xl font-medium border border-[#E8DDD3]">帮助同学</span>
+                        <span class="px-6 py-3 bg-[#F5E6D3] text-[#1A1A1A] rounded-full text-xl font-medium border border-[#E8DDD3]">作业完成</span>
+                        <span class="px-6 py-3 bg-[#F5E6D3] text-[#1A1A1A] rounded-full text-xl font-medium border border-[#E8DDD3]">作业优秀</span>
+                        <span class="px-6 py-3 bg-white text-primary border-2 border-primary rounded-full text-xl font-medium">特殊表现 (需评语)</span>
+                    </div>
+
+                    <div class="mt-12 p-6 bg-[#FAF8F5] border-l-4 border-[#C75B5B] rounded-r-xl anim-up delay-2">
+                        <p class="text-[#4A4543] text-lg">
+                            <strong class="text-[#C75B5B] font-serif text-xl block mb-2">风控边界：</strong>
+                            临时加分严格控制在 <strong class="text-[#1A1A1A]">1 到 5 分</strong>，避免通胀。“特殊表现”强制要求老师输入评语，确保家长端能看到详实的证据。
+                        </p>
+                    </div>
+                </div>
+                <!-- 加分项快捷弹窗 CSS 手绘 -->
+                <div class="anim-up delay-3 h-full flex items-center">
+                    <div class="w-full h-[55vh] rounded-3xl overflow-hidden shadow-lg border relative flex flex-col" style="background: linear-gradient(180deg, #faf5ee, #fdf7f0); border-color: #E8DDD3;">
+                        <!-- 模拟大屏背景透视 -->
+                        <div class="absolute inset-0 opacity-[0.06]" style="background: radial-gradient(circle at 30% 20%, #ef6f4d 0%, transparent 50%), radial-gradient(circle at 70% 80%, #2f9c95 0%, transparent 50%);"></div>
+                        <!-- 弹窗卡片 -->
+                        <div class="relative z-10 m-auto w-[85%] max-w-[420px] rounded-2xl shadow-2xl border overflow-hidden" style="background: rgba(255,255,255,0.97); border-color: #E8DDD3;">
+                            <!-- 弹窗头部 -->
+                            <div class="px-5 py-3 border-b flex items-center justify-between" style="background: linear-gradient(135deg, #F5E6D3, #FAF0E0); border-color: #E8DDD3;">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-9 h-9 rounded-full flex items-center justify-center text-sm" style="background: linear-gradient(135deg, #FFE0D0, #FFD0C0);">👦</div>
+                                    <div>
+                                        <div class="text-sm font-bold text-[#31251a]">王大伟</div>
+                                        <div class="text-[10px] text-[#876f59]">当前 12 分</div>
+                                    </div>
+                                </div>
+                                <div class="w-6 h-6 rounded-full flex items-center justify-center cursor-pointer hover:bg-[#E8DDD3]/50 transition-colors">
+                                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#876f59" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                                </div>
+                            </div>
+                            <!-- 弹窗内容 -->
+                            <div class="p-4">
+                                <div class="text-[11px] font-bold text-[#31251a] mb-3">选择成长记录项</div>
+                                <div class="grid grid-cols-2 gap-2.5">
+                                    <!-- 固定项 -->
+                                    <div class="rounded-2xl p-3 border cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-md score-btn" data-score="2" style="background: white; border-color: #E8DDD3;" onclick="triggerScorePop(this)">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-lg">👍</span>
+                                            <div>
+                                                <div class="text-xs font-bold text-[#1A1A1A]">课堂表现</div>
+                                                <div class="text-[10px] text-[#9C9590]">常规课堂表现良好</div>
+                                            </div>
+                                        </div>
+                                        <div class="mt-1.5 text-right text-[10px] font-bold text-[#ef6f4d]">+2 分</div>
+                                    </div>
+                                    <div class="rounded-2xl p-3 border cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-md score-btn" data-score="3" style="background: white; border-color: #E8DDD3;" onclick="triggerScorePop(this)">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-lg">🎤</span>
+                                            <div>
+                                                <div class="text-xs font-bold text-[#1A1A1A]">主动回答</div>
+                                                <div class="text-[10px] text-[#9C9590]">勇敢举手回答问题</div>
+                                            </div>
+                                        </div>
+                                        <div class="mt-1.5 text-right text-[10px] font-bold text-[#ef6f4d]">+3 分</div>
+                                    </div>
+                                    <div class="rounded-2xl p-3 border cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-md score-btn" data-score="2" style="background: white; border-color: #E8DDD3;" onclick="triggerScorePop(this)">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-lg">🤝</span>
+                                            <div>
+                                                <div class="text-xs font-bold text-[#1A1A1A]">帮助同学</div>
+                                                <div class="text-[10px] text-[#9C9590]">主动帮助身边同学</div>
+                                            </div>
+                                        </div>
+                                        <div class="mt-1.5 text-right text-[10px] font-bold text-[#ef6f4d]">+2 分</div>
+                                    </div>
+                                    <div class="rounded-2xl p-3 border cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-md score-btn" data-score="2" style="background: white; border-color: #E8DDD3;" onclick="triggerScorePop(this)">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-lg">📝</span>
+                                            <div>
+                                                <div class="text-xs font-bold text-[#1A1A1A]">作业完成</div>
+                                                <div class="text-[10px] text-[#9C9590]">按时完成课后作业</div>
+                                            </div>
+                                        </div>
+                                        <div class="mt-1.5 text-right text-[10px] font-bold text-[#ef6f4d]">+2 分</div>
+                                    </div>
+                                    <!-- 需要评语的特殊项 -->
+                                    <div class="col-span-2 rounded-2xl p-3 border-2 cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-md score-btn" data-score="5" style="background: white; border-color: #D97757; border-style: dashed;" onclick="triggerScorePop(this)">
+                                        <div class="flex items-center gap-2">
+                                            <span class="text-lg">✏️</span>
+                                            <div>
+                                                <div class="text-xs font-bold" style="color: #D97757;">特殊表现 (需评语)</div>
+                                                <div class="text-[10px] text-[#9C9590]">走心评语会展示给家长</div>
+                                            </div>
+                                        </div>
+                                        <div class="mt-1.5 flex items-center gap-2">
+                                            <input type="text" placeholder="请输入具体表现..." class="flex-1 text-[10px] px-2 py-1 rounded-lg border outline-none" style="border-color: #E8DDD3; background: #FAF8F5;" onclick="event.stopPropagation()">
+                                            <span class="text-[10px] font-bold text-[#ef6f4d] shrink-0">+1~5 分</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- 即时反馈提示 -->
+                                <div class="mt-3 text-center hidden" id="score-toast" style="animation: floatUp 1s ease-out forwards;">
+                                    <span class="inline-block text-lg font-black" style="color: #ef6f4d;">+3 已记录 ✓</span>
+                                    <span class="text-[10px] text-[#9C9590] ml-2">4秒内可撤回</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 8. 学生看到什么 -->
+        <div class="slide">
+            <div class="h-full flex flex-col justify-center w-full">
+                <div class="title-group anim-up mx-auto text-center mb-12">
+                    <div class="accent-line mx-auto"></div>
+                    <h2 class="font-serif">学生端视角</h2>
+                    <p>每天看到的都是<strong class="text-primary">“我今天又成长了一点”</strong>。</p>
+                </div>
+                
+                <div class="grid grid-cols-3 gap-8 mt-4">
+                    <div class="claude-card anim-up delay-1 bg-[#FAF8F5]">
+                        <i data-lucide="home" class="text-primary w-12 h-12 mb-6"></i>
+                        <h3 class="font-serif text-3xl font-bold mb-4 text-[#1A1A1A]">首页成就感</h3>
+                        <p class="text-[#4A4543] text-lg leading-relaxed">展示学习天数、当前精灵与下一等级进度条。目标明确，坚持有痕。</p>
+                    </div>
+                    <div class="claude-card anim-up delay-2 bg-[#FAF8F5]">
+                        <i data-lucide="book-open" class="text-[#D4A853] w-12 h-12 mb-6"></i>
+                        <h3 class="font-serif text-3xl font-bold mb-4 text-[#1A1A1A]">精灵图鉴收集</h3>
+                        <p class="text-[#4A4543] text-lg leading-relaxed">展示已拥有、出战状态及未解锁的锁定状态，满足收集欲与探索期待。</p>
+                    </div>
+                    <div class="claude-card anim-up delay-3 bg-[#FAF8F5]">
+                        <i data-lucide="gift" class="text-[#6B8F71] w-12 h-12 mb-6"></i>
+                        <h3 class="font-serif text-3xl font-bold mb-4 text-[#1A1A1A]">奖励小目标</h3>
+                        <p class="text-[#4A4543] text-lg leading-relaxed">奖励中心把抽象积分转为可兑换的具体实物，让每一次举手都有价值。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 9. 家长看到什么 -->
+        <div class="slide">
+            <div class="grid grid-cols-2 gap-16 h-full items-center">
+                <div class="anim-up">
+                    <div class="title-group">
+                        <div class="accent-line"></div>
+                        <h2 class="font-serif">家长端视角</h2>
+                        <p>家长看到的是<strong class="text-primary">成长证据</strong>，而非冰冷分数。</p>
+                    </div>
+                    <div class="space-y-8 mt-8">
+                        <div class="border-l-2 border-[#E8DDD3] pl-6 anim-up delay-1">
+                            <h4 class="font-serif text-2xl font-bold text-[#1A1A1A]">宏观摘要</h4>
+                            <p class="text-[#4A4543] text-lg mt-1">展示累计学习天数和本周核心成长摘要，建立机构信任感。</p>
+                        </div>
+                        <div class="border-l-2 border-[#E8DDD3] pl-6 anim-up delay-2">
+                            <h4 class="font-serif text-2xl font-bold text-[#1A1A1A]">高光时刻</h4>
+                            <p class="text-[#4A4543] text-lg mt-1">突出展示课堂闪光点（如走心的老师评语），满足家长分享欲。</p>
+                        </div>
+                        <div class="border-l-2 border-[#E8DDD3] pl-6 anim-up delay-3">
+                            <h4 class="font-serif text-2xl font-bold text-[#1A1A1A]">记录明细</h4>
+                            <p class="text-[#4A4543] text-lg mt-1">积分与成长的流水账，笔笔清晰，让“表现好”有迹可循。</p>
+                        </div>
+                        <div class="border-l-2 border-[#E8DDD3] pl-6 anim-up delay-4">
+                            <h4 class="font-serif text-2xl font-bold text-[#1A1A1A]">家校共育</h4>
+                            <p class="text-[#4A4543] text-lg mt-1">提供家庭配合建议和下周小目标，形成真正的教育合力。</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- 家长端手机界面 CSS 手绘 -->
+                <div class="anim-up delay-2 flex justify-center">
+                    <div class="w-[310px] h-[620px] rounded-[2.5rem] border-[8px] border-[#1A1A1A] shadow-2xl overflow-hidden relative flex flex-col" style="background: linear-gradient(180deg, #F5E6D3 0%, #FAF8F5 30%, #FAF8F5 100%);">
+                        <!-- 灵动岛 -->
+                        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[80px] h-[24px] bg-[#1A1A1A] rounded-b-2xl z-50"></div>
+                        <!-- 滚动内容区 -->
+                        <div class="flex-1 overflow-hidden px-4 pt-14 pb-4 flex flex-col gap-3">
+                            <!-- 头部 -->
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <div class="text-lg font-bold text-[#1A1A1A] leading-tight">张朱奕家长</div>
+                                    <div class="font-serif text-2xl font-black text-[#D97757] mt-0.5">早上好 ☀️</div>
+                                </div>
+                                <div class="rounded-2xl p-2.5 text-center shadow-md" style="background: linear-gradient(135deg, #D97757, #C4653A);">
+                                    <div class="text-[9px] text-white/80 mb-0.5">高途陪伴</div>
+                                    <div class="text-xl font-black text-white leading-none">141<span class="text-[10px] font-normal ml-0.5">天</span></div>
+                                </div>
+                            </div>
+                            <!-- 能力闪光点卡片 -->
+                            <div class="rounded-2xl p-3.5 shadow-sm border" style="background: rgba(255,255,255,0.95); border-color: #E8DDD3;">
+                                <div class="flex justify-between items-center mb-3">
+                                    <span class="text-xs font-bold text-[#1A1A1A]">✨ 能力闪光点</span>
+                                    <span class="text-[10px] text-[#9C9590] bg-[#FAF8F5] px-2 py-1 rounded-full">本周 23 项</span>
+                                </div>
+                                <div class="flex justify-between text-center">
+                                    <div class="flex flex-col items-center gap-1">
+                                        <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm" style="background: #FFF4E8;">🎤</div>
+                                        <span class="text-[10px] font-bold text-[#4A4543]">主动回答</span>
+                                        <span class="text-[10px] font-black text-[#1A1A1A]">10次</span>
+                                    </div>
+                                    <div class="flex flex-col items-center gap-1">
+                                        <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm" style="background: #FFFDE8;">⭐</div>
+                                        <span class="text-[10px] font-bold text-[#4A4543]">积极参与</span>
+                                        <span class="text-[10px] font-black text-[#1A1A1A]">10次</span>
+                                    </div>
+                                    <div class="flex flex-col items-center gap-1">
+                                        <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm" style="background: #FFE8E8;">🎯</div>
+                                        <span class="text-[10px] font-bold text-[#4A4543]">明显进步</span>
+                                        <span class="text-[10px] font-black text-[#1A1A1A]">1次</span>
+                                    </div>
+                                    <div class="flex flex-col items-center gap-1">
+                                        <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm" style="background: #FFE8F8;">🤝</div>
+                                        <span class="text-[10px] font-bold text-[#4A4543]">帮助同学</span>
+                                        <span class="text-[10px] font-black text-[#1A1A1A]">1次</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- 本周趋势卡片 -->
+                            <div class="rounded-2xl p-3.5 shadow-sm border" style="background: rgba(255,255,255,0.95); border-color: #E8DDD3;">
+                                <div class="flex justify-between items-center mb-3">
+                                    <span class="text-xs font-bold text-[#1A1A1A]">📊 这周趋势</span>
+                                    <span class="text-[10px] text-[#6B8F71]">稳定发挥</span>
+                                </div>
+                                <div class="flex justify-between items-end h-20 px-1 pt-1">
+                                    <div class="flex flex-col items-center gap-1">
+                                        <div class="w-8 rounded-t-md" style="height: 8px; background: #E8DDD3;"></div>
+                                        <span class="text-[9px] text-[#9C9590]">前3周</span>
+                                    </div>
+                                    <div class="flex flex-col items-center gap-1">
+                                        <div class="w-8 rounded-t-md" style="height: 12px; background: #E8DDD3;"></div>
+                                        <span class="text-[9px] text-[#9C9590]">前2周</span>
+                                    </div>
+                                    <div class="flex flex-col items-center gap-1">
+                                        <div class="w-8 rounded-t-md" style="height: 16px; background: #E8DDD3;"></div>
+                                        <span class="text-[9px] text-[#9C9590]">前1周</span>
+                                    </div>
+                                    <div class="flex flex-col items-center gap-1">
+                                        <div class="text-[10px] font-bold text-[#D97757] mb-0.5">70</div>
+                                        <div class="w-8 rounded-t-md relative overflow-hidden" style="height: 56px; background: linear-gradient(180deg, #D97757, #C4653A); box-shadow: 0 4px 12px rgba(217,119,87,0.35);">
+                                            <div class="absolute inset-0" style="background: linear-gradient(180deg, rgba(255,255,255,0.25), transparent);"></div>
+                                        </div>
+                                        <span class="text-[9px] font-bold text-[#D97757]">本周</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- 老师寄语 -->
+                            <div class="rounded-xl p-3 text-center border" style="background: #FAF8F5; border-color: #E8DDD3;">
+                                <div class="text-[10px] text-[#9C9590] mb-1">💬 王老师寄语</div>
+                                <div class="text-xs text-[#4A4543] leading-relaxed">今天的<span class="font-bold text-[#1A1A1A]">「主动回答」</span>很亮眼，<br>逻辑清晰，我有认真看到。</div>
+                            </div>
+                            <!-- 下一次课 -->
+                            <div class="rounded-xl p-3 flex justify-between items-center border" style="background: rgba(255,255,255,0.95); border-color: #E8DDD3;">
+                                <div>
+                                    <div class="text-[10px] font-bold text-[#D97757] mb-0.5">⏰ 下一次课倒计时</div>
+                                    <div class="text-xs font-bold text-[#1A1A1A]">周六 10:30 · 数学提高班</div>
+                                </div>
+                                <div class="text-[10px] text-white px-3 py-1.5 rounded-xl font-bold" style="background: #D97757;">查看课表</div>
+                            </div>
+                        </div>
+                        <!-- 底部导航 -->
+                        <div class="h-[64px] flex justify-around items-start pt-2 px-2 border-t border-[#E8DDD3]/50" style="background: rgba(255,255,255,0.88); backdrop-filter: blur(12px);">
+                            <div class="flex flex-col items-center gap-0.5" style="color: #D97757;"><span class="text-lg">📋</span><span class="text-[9px] font-bold">看板</span></div>
+                            <div class="flex flex-col items-center gap-0.5" style="color: #9C9590;"><span class="text-lg">👻</span><span class="text-[9px]">精灵</span></div>
+                            <div class="flex flex-col items-center gap-0.5" style="color: #9C9590;"><span class="text-lg">🛍️</span><span class="text-[9px]">商城</span></div>
+                            <div class="flex flex-col items-center gap-0.5" style="color: #9C9590;"><span class="text-lg">👤</span><span class="text-[9px]">我的</span></div>
+                            <div class="absolute bottom-2 left-1/2 -translate-x-1/2 w-28 h-1 bg-[#1A1A1A] rounded-full"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 10. 对校区的价值 -->
+        <div class="slide">
+            <div class="h-full flex flex-col justify-center text-center max-w-4xl mx-auto anim-up">
+                <i data-lucide="building-2" class="w-16 h-16 text-primary mx-auto mb-6"></i>
+                <h2 class="font-serif text-5xl font-bold mb-6 text-[#1A1A1A]">对校区的核心价值</h2>
+                <p class="text-2xl text-[#4A4543] font-light mb-16">
+                    从“讲服务”升级为<strong class="text-primary border-b-2 border-primary">“展示服务证据”</strong>。
+                </p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
+                    <div class="claude-card hover:-translate-y-2">
+                        <h3 class="font-serif text-2xl font-bold mb-4 text-[#1A1A1A]">1. 感知高频化</h3>
+                        <p class="text-[#4A4543] text-lg">大幅提升家长对课堂价值的感知频率，打破信息黑盒。</p>
+                    </div>
+                    <div class="claude-card hover:-translate-y-2 delay-1">
+                        <h3 class="font-serif text-2xl font-bold mb-4 text-[#1A1A1A]">2. 动作标准化</h3>
+                        <p class="text-[#4A4543] text-lg">标准化老师的记录动作，抹平不同校区、不同老师间的服务体验差异。</p>
+                    </div>
+                    <div class="claude-card hover:-translate-y-2 delay-2">
+                        <h3 class="font-serif text-2xl font-bold mb-4 text-[#1A1A1A]">3. 数据资产化</h3>
+                        <p class="text-[#4A4543] text-lg">沉淀出可供运营的数据池，精准支持续班分析与转介绍契机挖掘。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 11. 管理员每日动作 -->
+        <div class="slide">
+            <div class="grid grid-cols-2 gap-16 h-full items-center">
+                <div class="anim-up">
+                    <div class="title-group">
+                        <div class="accent-line"></div>
+                        <h2 class="font-serif">管理员每日动作</h2>
+                        <p>系统自动流转，管理员只需抓住三件事。</p>
+                    </div>
+                    <div class="space-y-6 mt-8">
+                        <div class="claude-card !p-6 flex items-start gap-5 anim-up delay-1">
+                            <i data-lucide="upload-cloud" class="text-primary w-8 h-8 shrink-0 mt-1"></i>
+                            <div>
+                                <h4 class="font-serif text-xl font-bold text-[#1A1A1A] mb-1">第一件事：导数据</h4>
+                                <p class="text-[#4A4543]">每日导入最新花名册，保持全盘数据鲜活。</p>
+                            </div>
+                        </div>
+                        <div class="claude-card !p-6 flex items-start gap-5 anim-up delay-2">
+                            <i data-lucide="check-circle-2" class="text-[#6B8F71] w-8 h-8 shrink-0 mt-1"></i>
+                            <div>
+                                <h4 class="font-serif text-xl font-bold text-[#1A1A1A] mb-1">第二件事：核变动</h4>
+                                <p class="text-[#4A4543]">核对新增、退学、结课等异动数据，确保账实相符。</p>
+                            </div>
+                        </div>
+                        <div class="claude-card !p-6 flex items-start gap-5 anim-up delay-3">
+                            <i data-lucide="shopping-bag" class="text-[#D4A853] w-8 h-8 shrink-0 mt-1"></i>
+                            <div>
+                                <h4 class="font-serif text-xl font-bold text-[#1A1A1A] mb-1">第三件事：发奖励</h4>
+                                <p class="text-[#4A4543]">及时处理系统提示的待发实物奖励订单，闭环体验。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- 管理员面板 CSS 手绘 -->
+                <div class="anim-up delay-2 h-full flex flex-col justify-center gap-5">
+                    <!-- 面板1：导入面板 -->
+                    <div class="rounded-2xl overflow-hidden shadow-sm border" style="background: white; border-color: #E8DDD3;">
+                        <div class="px-4 py-2.5 border-b flex items-center justify-between" style="background: #F5E6D3; border-color: #E8DDD3;">
+                            <div class="flex items-center gap-2">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D97757" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                <span class="text-xs font-bold text-[#1A1A1A]">花名册导入</span>
+                            </div>
+                            <span class="text-[9px] text-[#6B8F71] bg-white px-2 py-0.5 rounded-full">上次导入：6月14日</span>
+                        </div>
+                        <div class="p-3 space-y-2.5">
+                            <!-- 校区选择 -->
+                            <div class="flex items-center gap-2">
+                                <span class="text-[10px] text-[#4A4543] w-12 shrink-0">校区</span>
+                                <div class="flex-1 flex gap-1.5">
+                                    <span class="text-[10px] px-2 py-0.5 rounded-full border font-bold" style="background: #F5E6D3; color: #D97757; border-color: #D97757;">金桥校区</span>
+                                    <span class="text-[10px] px-2 py-0.5 rounded-full border" style="color: #9C9590; border-color: #E8DDD3;">徐汇校区</span>
+                                    <span class="text-[10px] px-2 py-0.5 rounded-full border" style="color: #9C9590; border-color: #E8DDD3;">浦东校区</span>
+                                </div>
+                            </div>
+                            <!-- 上传区域 -->
+                            <div class="rounded-xl border-2 border-dashed flex flex-col items-center justify-center py-4 gap-2 cursor-pointer hover:border-[#D97757] transition-colors import-zone" style="border-color: #E8DDD3; background: #FAF8F5;" onclick="triggerImport(this)">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#D97757" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                                <span class="text-[10px] text-[#4A4543]">拖拽 CSV 文件到此处</span>
+                                <span class="text-[9px] text-[#9C9590]">或点击选择文件</span>
+                                <div class="import-progress hidden w-3/4 h-1 rounded-full mt-1" style="background: #E8DDD3;"><div class="h-full rounded-full transition-all duration-[2s]" style="width:0%; background: #D97757;"></div></div>
+                            </div>
+                            <!-- 导入结果 -->
+                            <div class="flex gap-3 text-center">
+                                <div class="flex-1 rounded-lg py-1.5" style="background: #F0F8F1;">
+                                    <div class="text-sm font-black" style="color: #6B8F71;">128</div>
+                                    <div class="text-[9px] text-[#9C9590]">导入成功</div>
+                                </div>
+                                <div class="flex-1 rounded-lg py-1.5" style="background: #FFF0E8;">
+                                    <div class="text-sm font-black" style="color: #D97757;">3</div>
+                                    <div class="text-[9px] text-[#9C9590]">需处理异常</div>
+                                </div>
+                                <div class="flex-1 rounded-lg py-1.5" style="background: #FFF5F5;">
+                                    <div class="text-sm font-black" style="color: #C75B5B;">0</div>
+                                    <div class="text-[9px] text-[#9C9590]">导入失败</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 面板2：订单面板 -->
+                    <div class="rounded-2xl overflow-hidden shadow-sm border flex-1 flex flex-col" style="background: white; border-color: #E8DDD3;">
+                        <div class="px-4 py-2.5 border-b flex items-center justify-between" style="background: #F5E6D3; border-color: #E8DDD3;">
+                            <div class="flex items-center gap-2">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#D4A853" stroke-width="2.5"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/></svg>
+                                <span class="text-xs font-bold text-[#1A1A1A]">待处理订单</span>
+                            </div>
+                            <span class="text-[9px] text-white px-2 py-0.5 rounded-full" style="background: #C75B5B;">5 待发货</span>
+                        </div>
+                        <div class="flex-1 p-2 space-y-1.5 overflow-hidden">
+                            <!-- 订单行 -->
+                            <div class="flex items-center gap-2 px-2 py-1.5 rounded-xl border" style="border-color: #E8DDD3; background: #FAF8F5;">
+                                <div class="w-7 h-7 rounded-lg flex items-center justify-center text-xs shrink-0" style="background: #F5E6D3;">📓</div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-[10px] font-bold text-[#1A1A1A] truncate">张小明 · 卡通笔记本</div>
+                                    <div class="text-[9px] text-[#9C9590]">6月14日 · 金桥校区</div>
+                                </div>
+                                <div class="flex items-center gap-1.5 shrink-0">
+                                    <span class="text-[10px] font-bold text-[#D97757]">80分</span>
+                                    <span class="text-[9px] px-2 py-0.5 rounded-full border cursor-pointer hover:scale-105 transition-transform order-status" style="color: #D4A853; border-color: #D4A853; background: #FFFDE8;" onclick="cycleOrderStatus(this)">待发货</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 px-2 py-1.5 rounded-xl border" style="border-color: #E8DDD3; background: #FAF8F5;">
+                                <div class="w-7 h-7 rounded-lg flex items-center justify-center text-xs shrink-0" style="background: #F5E6D3;">✏️</div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-[10px] font-bold text-[#1A1A1A] truncate">李小花 · 文具套装</div>
+                                    <div class="text-[9px] text-[#9C9590]">6月13日 · 金桥校区</div>
+                                </div>
+                                <div class="flex items-center gap-1.5 shrink-0">
+                                    <span class="text-[10px] font-bold text-[#D97757]">150分</span>
+                                    <span class="text-[9px] px-2 py-0.5 rounded-full border cursor-pointer hover:scale-105 transition-transform order-status" style="color: #D4A853; border-color: #D4A853; background: #FFFDE8;" onclick="cycleOrderStatus(this)">待发货</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2 px-2 py-1.5 rounded-xl border" style="border-color: #E8DDD3; background: #FAF8F5;">
+                                <div class="w-7 h-7 rounded-lg flex items-center justify-center text-xs shrink-0" style="background: #E8F5E8;">🎁</div>
+                                <div class="flex-1 min-w-0">
+                                    <div class="text-[10px] font-bold text-[#1A1A1A] truncate">王大伟 · 实验套装</div>
+                                    <div class="text-[9px] text-[#9C9590]">6月12日 · 徐汇校区</div>
+                                </div>
+                                <div class="flex items-center gap-1.5 shrink-0">
+                                    <span class="text-[10px] font-bold text-[#D97757]">400分</span>
+                                    <span class="text-[9px] px-2 py-0.5 rounded-full text-white cursor-pointer hover:scale-105 transition-transform order-status" style="background: #6B8F71;" onclick="cycleOrderStatus(this)">已发货</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="px-4 py-2 border-t border-[#E8DDD3] flex justify-between items-center">
+                            <span class="text-[10px] text-[#9C9590]">共 12 条订单</span>
+                            <span class="text-[10px] text-[#D97757] font-bold cursor-pointer">查看全部 →</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 12. 数据导入为什么重要 -->
+        <div class="slide">
+            <div class="h-full flex flex-col justify-center w-full">
+                <div class="title-group anim-up mb-12">
+                    <div class="accent-line"></div>
+                    <h2 class="font-serif">第一道关：花名册数据</h2>
+                    <p>系统能跑准的基石，重要性极高。</p>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-12 mt-4">
+                    <div class="claude-card anim-up delay-1 bg-[#FAF8F5]">
+                        <h3 class="font-serif text-3xl font-bold mb-6 text-[#1A1A1A] border-b border-[#E8DDD3] pb-4">流向与机制</h3>
+                        <p class="text-[#4A4543] text-xl leading-relaxed mb-4">
+                            学员、班级、教师、课表等基础要素，<strong class="text-[#1A1A1A]">统一通过花名册</strong>进入系统。
+                        </p>
+                        <p class="text-[#4A4543] text-xl leading-relaxed">
+                            采用<strong class="text-primary">“学期替换模式”</strong>，系统会自动将名单外的学生处理为离班或退学，极大减轻手动维护成本。
+                        </p>
+                    </div>
+                    
+                    <div class="claude-card anim-up delay-2 bg-[#F5E6D3] border-[#D97757]">
+                        <h3 class="font-serif text-3xl font-bold mb-6 text-[#C4653A] border-b border-[#D97757]/30 pb-4 flex items-center gap-2">
+                            <i data-lucide="alert-circle"></i> 关键动作提醒
+                        </h3>
+                        <p class="text-[#1A1A1A] text-xl leading-relaxed mb-6 font-medium">
+                            导入后必须核对“失败行”和“异常提示”！
+                        </p>
+                        <p class="text-[#4A4543] text-lg leading-relaxed">
+                            一旦花名册出错，老师在大屏上就找不到学生，家长端就看不到同步数据，整个体验将断层。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 13. 奖励中心怎么配 -->
+        <div class="slide">
+            <div class="h-full flex flex-col justify-center">
+                <div class="title-group anim-up text-center mx-auto mb-16">
+                    <div class="accent-line mx-auto"></div>
+                    <h2 class="font-serif">奖励中心的配置梯度</h2>
+                    <p>必须具备价格梯度，避免只做“高不可攀”的大额奖品。</p>
+                </div>
+                
+                <div class="grid grid-cols-4 gap-6 w-full anim-up delay-1">
+                    <div class="claude-card text-center !p-6 hover:-translate-y-2">
+                        <div class="text-[#6B8F71] text-3xl font-bold mb-2">20 - 80</div>
+                        <div class="text-[#9C9590] text-sm mb-6 uppercase tracking-widest">积分</div>
+                        <h4 class="font-serif text-xl font-bold text-[#1A1A1A] mb-3">易得小奖</h4>
+                        <p class="text-[#4A4543] text-sm">贴纸、橡皮、书签。快速建立第一次正反馈兑换体验。</p>
+                    </div>
+                    
+                    <div class="claude-card text-center !p-6 hover:-translate-y-2 bg-[#FAF8F5] transform scale-105 border border-[#D97757]/20 shadow-xl">
+                        <div class="text-primary text-3xl font-bold mb-2">80 - 200</div>
+                        <div class="text-[#9C9590] text-sm mb-6 uppercase tracking-widest">积分</div>
+                        <h4 class="font-serif text-xl font-bold text-[#1A1A1A] mb-3">常规主打</h4>
+                        <p class="text-[#4A4543] text-sm">笔记本、文具套装。支撑周级别、月级别的中期努力目标。</p>
+                    </div>
+                    
+                    <div class="claude-card text-center !p-6 hover:-translate-y-2">
+                        <div class="text-[#D4A853] text-3xl font-bold mb-2">200 - 600</div>
+                        <div class="text-[#9C9590] text-sm mb-6 uppercase tracking-widest">积分</div>
+                        <h4 class="font-serif text-xl font-bold text-[#1A1A1A] mb-3">大件惊喜</h4>
+                        <p class="text-[#4A4543] text-sm">中型礼盒、实验套装。长期坚持学习的重磅激励。</p>
+                    </div>
+                    
+                    <div class="claude-card text-center !p-6 hover:-translate-y-2 opacity-80">
+                        <div class="text-[#C4653A] text-3xl font-bold mb-2">600+</div>
+                        <div class="text-[#9C9590] text-sm mb-6 uppercase tracking-widest">积分</div>
+                        <h4 class="font-serif text-xl font-bold text-[#1A1A1A] mb-3">稀有大奖</h4>
+                        <p class="text-[#4A4543] text-sm"><strong class="text-[#C75B5B]">限库限期、需审批</strong>。镇店之宝级别的存在。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 14. 扭蛋的家长沟通 -->
+        <div class="slide">
+            <div class="grid grid-cols-2 gap-16 h-full items-center">
+                <div class="anim-up">
+                    <div class="title-group">
+                        <div class="accent-line"></div>
+                        <h2 class="font-serif">扭蛋功能的边界</h2>
+                        <p>抽的是虚拟好物，<strong class="text-[#C75B5B]">绝不是</strong>诱导消费。</p>
+                    </div>
+                    
+                    <div class="space-y-6 mt-8">
+                        <div class="p-6 bg-white rounded-xl border border-[#E8DDD3] shadow-sm anim-up delay-1">
+                            <h3 class="font-serif text-xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-2">资金边界</h3>
+                            <p class="text-[#4A4543]">扭蛋券来源于课堂记录，系统不支持也不需要家长进行任何充值。</p>
+                        </div>
+                        <div class="p-6 bg-white rounded-xl border border-[#E8DDD3] shadow-sm anim-up delay-2">
+                            <h3 class="font-serif text-xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-2">产出边界</h3>
+                            <p class="text-[#4A4543]">产出严格限制为虚拟奖励或装扮元素，<strong class="text-[#1A1A1A]">不会产出精灵本体</strong>，保护核心体验。</p>
+                        </div>
+                        <div class="p-6 bg-white rounded-xl border border-[#E8DDD3] shadow-sm anim-up delay-3">
+                            <h3 class="font-serif text-xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-2">重复处理</h3>
+                            <p class="text-[#4A4543]">抽到重复物品会自动按系统规则处理（如转化为少量积分），避免死循环。</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- 扭蛋机手机界面 CSS 手绘 -->
+                <div class="anim-up delay-3 h-[60vh] flex items-center justify-center">
+                    <div class="w-[280px] h-[520px] rounded-[2.5rem] border-[8px] border-[#1A1A1A] shadow-2xl overflow-hidden relative flex flex-col" style="background: linear-gradient(180deg, #FFF8F0 0%, #FAF8F5 100%);">
+                        <!-- 灵动岛 -->
+                        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[70px] h-[22px] bg-[#1A1A1A] rounded-b-2xl z-50"></div>
+                        <!-- 内容区 -->
+                        <div class="flex-1 flex flex-col items-center pt-14 px-5 pb-4 gap-3">
+                            <!-- 标题 -->
+                            <div class="text-center">
+                                <div class="text-lg font-serif font-black text-[#1A1A1A]">精灵扭蛋机</div>
+                                <div class="text-[10px] text-[#9C9590] mt-0.5">消耗扭蛋券，抽取虚拟装扮</div>
+                            </div>
+                            <!-- CSS 扭蛋机主体 -->
+                            <div class="relative w-full h-44 flex items-center justify-center">
+                                <!-- 机器底座 -->
+                                <div class="absolute bottom-3 w-48 h-20 rounded-2xl shadow-md" style="background: linear-gradient(180deg, #F5E6D3, #E8D5C0); border: 2px solid #D4B896;"></div>
+                                <!-- 机器底座装饰线 -->
+                                <div class="absolute bottom-3 w-40 h-1 rounded-full" style="background: #D4B896;"></div>
+                                <!-- 透明球仓 -->
+                                <div class="absolute bottom-12 w-36 h-36 rounded-full overflow-hidden border-4 flex items-center justify-center" style="border-color: #D4B896; background: rgba(245,230,211,0.6); box-shadow: inset 0 4px 20px rgba(0,0,0,0.06);">
+                                    <!-- 里面的扭蛋 -->
+                                    <div class="absolute w-7 h-7 rounded-full shadow-sm" style="background: linear-gradient(135deg, #FF6B6B, #FF8E8E); top: 12px; left: 20px; animation: float 3s ease-in-out infinite;"></div>
+                                    <div class="absolute w-6 h-6 rounded-full shadow-sm" style="background: linear-gradient(135deg, #FFD93D, #FFE570); top: 16px; right: 22px; animation: float 3.5s ease-in-out 0.5s infinite;"></div>
+                                    <div class="absolute w-6 h-6 rounded-full shadow-sm" style="background: linear-gradient(135deg, #6BCB77, #8FD99A); bottom: 14px; left: 30px; animation: float 2.8s ease-in-out 1s infinite;"></div>
+                                    <div class="absolute w-7 h-7 rounded-full shadow-sm" style="background: linear-gradient(135deg, #4D96FF, #6DADFF); bottom: 10px; right: 18px; animation: float 3.2s ease-in-out 0.3s infinite;"></div>
+                                    <div class="absolute w-5 h-5 rounded-full shadow-sm" style="background: linear-gradient(135deg, #FF8FAB, #FFB3C6); top: 28px; left: 40px; animation: float 2.6s ease-in-out 0.8s infinite;"></div>
+                                    <!-- 玻璃高光 -->
+                                    <div class="absolute top-3 left-5 w-14 h-10 rounded-full" style="background: linear-gradient(135deg, rgba(255,255,255,0.5), transparent);"></div>
+                                </div>
+                                <!-- 机器顶盖 -->
+                                <div class="absolute bottom-[100px] w-40 h-8 rounded-t-full" style="background: linear-gradient(180deg, #F5E6D3, #E8D5C0); border: 2px solid #D4B896; border-bottom: none;"></div>
+                                <!-- 投币口 -->
+                                <div class="absolute bottom-[108px] w-12 h-3 rounded-full" style="background: #1A1A1A; left: calc(50% + 30px);"></div>
+                                <!-- 旋钮 -->
+                                <div class="absolute bottom-8 w-8 h-8 rounded-full shadow-md flex items-center justify-center" style="background: linear-gradient(135deg, #D97757, #C4653A); right: calc(50% - 60px); animation: pulse 2s infinite;">
+                                    <div class="w-3 h-3 rounded-full bg-white/30"></div>
+                                </div>
+                                <!-- 出货口 -->
+                                <div class="absolute bottom-1 w-16 h-6 rounded-b-xl" style="background: #1A1A1A; left: calc(50% - 8px); border-radius: 0 0 12px 12px;"></div>
+                            </div>
+                            <!-- 扭蛋券余额 -->
+                            <div class="flex items-center gap-2 rounded-full px-4 py-1.5 shadow-sm border" style="background: white; border-color: #E8DDD3;">
+                                <span class="text-sm">🎫</span>
+                                <span class="text-xs text-[#4A4543]">扭蛋券</span>
+                                <span class="text-lg font-black text-[#D97757]">3</span>
+                                <span class="text-[10px] text-[#9C9590]">张</span>
+                            </div>
+                            <!-- 抽蛋按钮 -->
+                            <div class="flex gap-3 w-full">
+                                <div class="flex-1 text-center py-2.5 rounded-2xl text-xs font-bold shadow-md cursor-pointer gacha-btn" style="background: linear-gradient(135deg, #D97757, #C4653A); color: white; box-shadow: 0 4px 15px rgba(217,119,87,0.35);" onclick="gachaSpin(this, 1)">抽一次 · 1券</div>
+                                <div class="flex-1 text-center py-2.5 rounded-2xl text-xs font-bold shadow-md cursor-pointer border-2 gacha-btn" style="color: #D97757; border-color: #D97757; background: white;" onclick="gachaSpin(this, 10)">抽十次 · 10券</div>
+                            </div>
+                            <!-- 最近获得 -->
+                            <div class="w-full rounded-xl p-2.5 border" style="background: #FAF8F5; border-color: #E8DDD3;">
+                                <div class="text-[10px] font-bold text-[#1A1A1A] mb-2">🎉 最近获得</div>
+                                <div class="flex gap-2 overflow-hidden">
+                                    <div class="shrink-0 w-12 h-12 rounded-xl flex items-center justify-center text-lg shadow-sm" style="background: linear-gradient(135deg, #FFF0E0, #FFE0C0);">⭐</div>
+                                    <div class="shrink-0 w-12 h-12 rounded-xl flex items-center justify-center text-lg shadow-sm" style="background: linear-gradient(135deg, #E0F0FF, #D0E0FF);">💎</div>
+                                    <div class="shrink-0 w-12 h-12 rounded-xl flex items-center justify-center text-lg shadow-sm" style="background: linear-gradient(135deg, #F0FFE0, #E0FFD0);">🍀</div>
+                                    <div class="shrink-0 w-12 h-12 rounded-xl flex items-center justify-center text-sm text-[#9C9590] border border-dashed" style="border-color: #E8DDD3;">?</div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Home Indicator -->
+                        <div class="absolute bottom-2 left-1/2 -translate-x-1/2 w-28 h-1 bg-[#1A1A1A] rounded-full"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 15. 后台数据看板 -->
+        <div class="slide">
+            <div class="h-full flex flex-col justify-center">
+                <div class="title-group anim-up text-center mx-auto mb-12">
+                    <div class="accent-line mx-auto"></div>
+                    <h2 class="font-serif">运营状态指挥塔</h2>
+                    <p>后台不仅用于录入，更是看校区运转健康度的仪表盘。</p>
+                </div>
+                
+                <div class="grid grid-cols-4 gap-6 w-full anim-up delay-1">
+                    <div class="claude-card !p-8 text-center bg-white">
+                        <div class="text-[#4A4543] font-serif text-2xl font-bold mb-2">学员覆盖率</div>
+                        <p class="text-[#9C9590] text-sm">看系统是否真正触达每个孩子</p>
+                    </div>
+                    <div class="claude-card !p-8 text-center bg-white">
+                        <div class="text-[#4A4543] font-serif text-2xl font-bold mb-2">教师活跃度</div>
+                        <p class="text-[#9C9590] text-sm">看推行阻力出在哪个教研组</p>
+                    </div>
+                    <div class="claude-card !p-8 text-center bg-white">
+                        <div class="text-[#4A4543] font-serif text-2xl font-bold mb-2">课堂覆盖率</div>
+                        <p class="text-[#9C9590] text-sm">评估课堂工具常态化使用情况</p>
+                    </div>
+                    <div class="claude-card !p-8 text-center bg-white">
+                        <div class="text-[#4A4543] font-serif text-2xl font-bold mb-2">人均加分</div>
+                        <p class="text-[#9C9590] text-sm">监控是否发生积分通货膨胀</p>
+                    </div>
+                </div>
+
+                <div class="mt-8 claude-card bg-[#F5E6D3] !p-8 border-[#D97757]/30 flex items-center justify-between anim-up delay-2">
+                    <div>
+                        <h3 class="font-serif text-2xl font-bold text-[#1A1A1A] mb-1">订单处理与校区排行</h3>
+                        <p class="text-[#4A4543] text-lg">直观展示待处理事务，以及各校区横向对比健康度。</p>
+                    </div>
+                    <i data-lucide="bar-chart" class="w-12 h-12 text-[#C4653A]"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- 16. 上线节奏 -->
+        <div class="slide">
+            <div class="h-full flex flex-col justify-center">
+                <div class="title-group anim-up mb-16 text-center mx-auto">
+                    <div class="accent-line mx-auto"></div>
+                    <h2 class="font-serif">上线节奏推进</h2>
+                    <p>先确保核心功能稳定运行，再逐步丰富运营细节。</p>
+                </div>
+                
+                <div class="flex items-start justify-between relative anim-up delay-1 w-full max-w-5xl mx-auto">
+                    <!-- 底线 -->
+                    <div class="absolute top-6 left-10 right-10 h-0.5 bg-[#E8DDD3] -z-10"></div>
+                    
+                    <div class="flex flex-col items-center flex-1">
+                        <div class="w-12 h-12 rounded-full bg-[#FAF8F5] border-4 border-[#E8DDD3] flex items-center justify-center mb-6"></div>
+                        <h3 class="font-serif text-2xl font-bold text-[#1A1A1A] mb-3">T-3 到 T-1</h3>
+                        <p class="text-[#4A4543] text-center text-sm px-4">数据准备<br>账号发放<br>老师系统培训</p>
+                    </div>
+
+                    <div class="flex flex-col items-center flex-1">
+                        <div class="w-12 h-12 rounded-full bg-primary border-4 border-[#F5E6D3] flex items-center justify-center mb-6 shadow-lg transform scale-110"></div>
+                        <h3 class="font-serif text-2xl font-bold text-primary mb-3">T 日 (Launch)</h3>
+                        <p class="text-[#4A4543] text-center text-sm px-4 font-bold">理念宣讲启动<br>课堂正式试用<br>现场实地答疑</p>
+                    </div>
+
+                    <div class="flex flex-col items-center flex-1">
+                        <div class="w-12 h-12 rounded-full bg-[#FAF8F5] border-4 border-[#E8DDD3] flex items-center justify-center mb-6"></div>
+                        <h3 class="font-serif text-2xl font-bold text-[#1A1A1A] mb-3">T+1 到 T+7</h3>
+                        <p class="text-[#4A4543] text-center text-sm px-4">花名册数据核对<br>订单首批处理<br>一线问题收集</p>
+                    </div>
+
+                    <div class="flex flex-col items-center flex-1">
+                        <div class="w-12 h-12 rounded-full bg-[#FAF8F5] border-4 border-[#E8DDD3] flex items-center justify-center mb-6"></div>
+                        <h3 class="font-serif text-2xl font-bold text-[#1A1A1A] mb-3">T+14</h3>
+                        <p class="text-[#4A4543] text-center text-sm px-4">复盘老师使用率<br>收集家长反馈<br>运营策略调优</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 17. 校区分工 -->
+        <div class="slide">
+            <div class="h-full flex flex-col justify-center">
+                <div class="title-group anim-up text-center mx-auto mb-12">
+                    <div class="accent-line mx-auto"></div>
+                    <h2 class="font-serif">校区分工矩阵</h2>
+                    <p>各角色分工明确，协同高效推进。</p>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-8 max-w-5xl mx-auto w-full anim-up delay-1">
+                    <div class="claude-card border-l-4 border-l-[#C4653A]">
+                        <h3 class="font-serif text-2xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-2">
+                            <i data-lucide="user-cog" class="w-5 h-5 text-[#C4653A]"></i> 校长 (战略驱动)
+                        </h3>
+                        <p class="text-[#4A4543] text-lg">负责推动校区整体执行进度，统一对外的家长沟通口径与策略方向。</p>
+                    </div>
+                    <div class="claude-card border-l-4 border-l-[#D97757]">
+                        <h3 class="font-serif text-2xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-2">
+                            <i data-lucide="database" class="w-5 h-5 text-[#D97757]"></i> 管理员 (大后方)
+                        </h3>
+                        <p class="text-[#4A4543] text-lg">每日基础数据维护、花名册导入、奖励池配置与实物订单发货处理。</p>
+                    </div>
+                    <div class="claude-card border-l-4 border-l-[#6B8F71]">
+                        <h3 class="font-serif text-2xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-2">
+                            <i data-lucide="graduation-cap" class="w-5 h-5 text-[#6B8F71]"></i> 一线老师 (执行终端)
+                        </h3>
+                        <p class="text-[#4A4543] text-lg">专注于课堂正向记录动作，必要时的撤回纠错，撰写走心评语。</p>
+                    </div>
+                    <div class="claude-card border-l-4 border-l-[#D4A853]">
+                        <h3 class="font-serif text-2xl font-bold text-[#1A1A1A] mb-2 flex items-center gap-2">
+                            <i data-lucide="pie-chart" class="w-5 h-5 text-[#D4A853]"></i> 运营教务 (分析师)
+                        </h3>
+                        <p class="text-[#4A4543] text-lg">看数据分层看板，输出周报，监控潜在流失风险并挖掘转介绍契机。</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 18. 老师培训最小清单 -->
+        <div class="slide">
+            <div class="grid grid-cols-2 gap-16 h-full items-center">
+                <div class="anim-up">
+                    <div class="title-group">
+                        <div class="accent-line"></div>
+                        <h2 class="font-serif">老师的 5 个最小动作</h2>
+                        <p>只需五步，轻松上手。</p>
+                    </div>
+                    <ul class="space-y-6 mt-8 text-2xl text-[#1A1A1A] font-medium">
+                        <li class="flex items-center gap-4 anim-up delay-1">
+                            <span class="w-3 h-3 bg-[#E8DDD3] rounded-full"></span> 1. 登录系统
+                        </li>
+                        <li class="flex items-center gap-4 anim-up delay-1">
+                            <span class="w-3 h-3 bg-[#E8DDD3] rounded-full"></span> 2. 进入班级
+                        </li>
+                        <li class="flex items-center gap-4 anim-up delay-2">
+                            <span class="w-3 h-3 bg-primary rounded-full"></span> 3. 一键开课
+                        </li>
+                        <li class="flex items-center gap-4 anim-up delay-2">
+                            <span class="w-3 h-3 bg-[#6B8F71] rounded-full"></span> 4. 点学生加分 <span class="text-[#9C9590] text-lg font-normal">(最高频)</span>
+                        </li>
+                        <li class="flex items-center gap-4 anim-up delay-3">
+                            <span class="w-3 h-3 bg-[#D4A853] rounded-full"></span> 5. 撤回防错与下课
+                        </li>
+                    </ul>
+                </div>
+                <!-- 老师五步培训图解 CSS 手绘 -->
+                <div class="anim-up delay-2 h-[68vh] rounded-3xl overflow-hidden shadow-lg border flex flex-col" style="background: linear-gradient(180deg, #FAF8F5, #F5E6D3); border-color: #E8DDD3;">
+                    <!-- 顶部：大屏设备示意 -->
+                    <div class="flex-1 p-4 flex flex-col gap-3">
+                        <!-- Step 介绍标题 -->
+                        <div class="text-center">
+                            <span class="text-[10px] text-[#9C9590] bg-white/80 px-3 py-0.5 rounded-full">课堂大屏操作流程</span>
+                        </div>
+                        <!-- 5步横向排列 -->
+                        <div class="flex-1 grid grid-cols-5 gap-2">
+                            <!-- Step 1: 登录 -->
+                            <div class="rounded-2xl p-2 flex flex-col items-center text-center gap-1.5 border" style="background: rgba(255,255,255,0.9); border-color: #E8DDD3;">
+                                <div class="text-lg">1️⃣</div>
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: #F5E6D3;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D97757" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                                </div>
+                                <div class="text-[10px] font-bold text-[#1A1A1A]">登录系统</div>
+                                <div class="text-[8px] text-[#9C9590] leading-tight">打开大屏<br>扫码登录</div>
+                            </div>
+                            <!-- Step 2: 进入班级 -->
+                            <div class="rounded-2xl p-2 flex flex-col items-center text-center gap-1.5 border" style="background: rgba(255,255,255,0.9); border-color: #E8DDD3;">
+                                <div class="text-lg">2️⃣</div>
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: #F5E6D3;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#D97757" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+                                </div>
+                                <div class="text-[10px] font-bold text-[#1A1A1A]">进入班级</div>
+                                <div class="text-[8px] text-[#9C9590] leading-tight">选择校区<br>与对应班级</div>
+                            </div>
+                            <!-- Step 3: 一键开课 (highlighted) -->
+                            <div class="rounded-2xl p-2 flex flex-col items-center text-center gap-1.5 border-2 relative" style="background: rgba(255,245,235,0.95); border-color: #D97757;">
+                                <div class="absolute -top-2 left-1/2 -translate-x-1/2 text-[8px] text-white px-2 py-0.5 rounded-full" style="background: #D97757;">核心动作</div>
+                                <div class="text-lg mt-1">3️⃣</div>
+                                <div class="w-12 h-12 rounded-xl flex items-center justify-center shadow-md animate-pulse" style="background: linear-gradient(135deg, #D97757, #C4653A);">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="1"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                </div>
+                                <div class="text-[10px] font-bold" style="color: #D97757;">一键开课</div>
+                                <div class="text-[8px] text-[#9C9590] leading-tight">激活课堂<br>开始记录</div>
+                            </div>
+                            <!-- Step 4: 点学生加分 -->
+                            <div class="rounded-2xl p-2 flex flex-col items-center text-center gap-1.5 border" style="background: rgba(255,255,255,0.9); border-color: #E8DDD3;">
+                                <div class="text-lg">4️⃣</div>
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: #E8F5E8;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6B8F71" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                </div>
+                                <div class="text-[10px] font-bold text-[#1A1A1A]">点学生加分</div>
+                                <div class="text-[8px] text-[#9C9590] leading-tight">点击头像<br>选记录项加分</div>
+                            </div>
+                            <!-- Step 5: 撤回与下课 -->
+                            <div class="rounded-2xl p-2 flex flex-col items-center text-center gap-1.5 border" style="background: rgba(255,255,255,0.9); border-color: #E8DDD3;">
+                                <div class="text-lg">5️⃣</div>
+                                <div class="w-10 h-10 rounded-xl flex items-center justify-center" style="background: #FFF0E8;">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C75B5B" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                                </div>
+                                <div class="text-[10px] font-bold text-[#1A1A1A]">撤回·下课</div>
+                                <div class="text-[8px] text-[#9C9590] leading-tight">4秒撤回<br>安全下课</div>
+                            </div>
+                        </div>
+                        <!-- 底部模拟大屏预览条 -->
+                        <div class="rounded-2xl p-3 border flex items-center gap-3" style="background: rgba(255,255,255,0.85); border-color: #E8DDD3;">
+                            <div class="flex items-center gap-1.5">
+                                <div class="w-2 h-2 rounded-full" style="background: #ef6f4d;"></div>
+                                <span class="text-[10px] font-bold text-[#31251a]">三年级数学提高班</span>
+                            </div>
+                            <div class="flex-1"></div>
+                            <span class="text-[9px] text-[#876f59]">00:23:15</span>
+                            <div class="flex gap-1">
+                                <div class="w-6 h-6 rounded-full flex items-center justify-center text-[8px]" style="background: #F5E6D3;">👦</div>
+                                <div class="w-6 h-6 rounded-full flex items-center justify-center text-[8px]" style="background: #F5E6D3;">👧</div>
+                                <div class="w-6 h-6 rounded-full flex items-center justify-center text-[8px]" style="background: #F5E6D3;">👦</div>
+                                <div class="w-6 h-6 rounded-full flex items-center justify-center text-[8px]" style="background: #FFF0E8;">+3</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 19. 家长沟通口径 -->
+        <div class="slide">
+            <div class="h-full flex flex-col justify-center max-w-4xl mx-auto w-full">
+                <div class="title-group anim-up text-center mx-auto mb-12">
+                    <div class="accent-line mx-auto"></div>
+                    <h2 class="font-serif">对家长的沟通口径</h2>
+                    <p>以成长反馈为核心，让家长看见孩子的每一次进步。</p>
+                </div>
+
+                <div class="claude-card !p-12 anim-up delay-1 bg-[#FAF8F5] relative">
+                    <i data-lucide="quote" class="absolute top-8 left-8 w-12 h-12 text-[#F5E6D3]"></i>
+                    <p class="font-serif text-[1.6rem] text-[#1A1A1A] leading-[1.8] relative z-10 text-center indent-8">
+                        家长您好，为了让您更直观地看到孩子在机构的进步，我们会把孩子<strong class="text-primary">课堂表现</strong>记录成成长值。您在手机端可以看到孩子<strong class="text-primary">本周亮点和老师具体记录</strong>。
+                    </p>
+                    <p class="font-serif text-[1.6rem] text-[#1A1A1A] leading-[1.8] mt-6 relative z-10 text-center">
+                        同时配备的奖励中心，只是对孩子进步的<strong class="text-primary">阶段性鼓励</strong>，所有积分源于课堂努力，<strong class="text-[#C4653A]">完全不需要您充值</strong>，旨在激发内驱力。
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 20. 常见问题 FAQ -->
+        <div class="slide">
+            <div class="h-full flex flex-col justify-center w-full max-w-5xl mx-auto">
+                <div class="title-group anim-up mb-12">
+                    <div class="accent-line"></div>
+                    <h2 class="font-serif">上线初期排查指南</h2>
+                    <p>集中在账号、数据、积分、库存四类。</p>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-8 anim-up delay-1">
+                    <div class="claude-card">
+                        <h3 class="font-serif text-xl font-bold text-[#1A1A1A] mb-3">1. 登录不了 / 进不去</h3>
+                        <p class="text-[#4A4543] text-sm leading-relaxed">
+                            检查账号权限和密码状态，确认系统后台已正确赋权。
+                        </p>
+                    </div>
+                    <div class="claude-card">
+                        <h3 class="font-serif text-xl font-bold text-[#1A1A1A] mb-3">2. 看不到班级 / 没学生</h3>
+                        <p class="text-[#4A4543] text-sm leading-relaxed">
+                            确认花名册已成功导入，检查组师绑定关系是否正确。
+                        </p>
+                    </div>
+                    <div class="claude-card">
+                        <h3 class="font-serif text-xl font-bold text-[#1A1A1A] mb-3">3. 积分没到账</h3>
+                        <p class="text-[#4A4543] text-sm leading-relaxed">
+                            核对大屏网络连接和每日加分上限，确认家长端流水记录同步。
+                        </p>
+                    </div>
+                    <div class="claude-card">
+                        <h3 class="font-serif text-xl font-bold text-[#1A1A1A] mb-3">4. 兑换不了奖品</h3>
+                        <p class="text-[#4A4543] text-sm leading-relaxed">
+                            检查奖品库存余额、兑换时段配置和学生积分是否充足。
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 21. 风险边界 -->
+        <div class="slide">
+            <div class="h-full flex flex-col justify-center items-center text-center max-w-4xl mx-auto anim-up">
+                <i data-lucide="shield-alert" class="w-16 h-16 text-[#C75B5B] mx-auto mb-8"></i>
+                <h2 class="font-serif text-5xl font-bold mb-6 text-[#1A1A1A]">切记：系统的风险边界</h2>
+                <p class="text-2xl text-[#4A4543] font-light mb-16">
+                    系统只负责记录，<strong class="text-[#C75B5B]">绝不能替代老师的人性化判断</strong>。
+                </p>
+                
+                <div class="w-full text-left bg-white p-10 rounded-2xl border border-[#F5E6D3] shadow-sm space-y-8">
+                    <div class="flex gap-4 items-start">
+                        <span class="w-2 h-2 bg-[#C75B5B] rounded-full mt-2.5 shrink-0"></span>
+                        <div>
+                            <strong class="text-[#1A1A1A] font-serif text-xl block mb-1">抵制积分通胀</strong>
+                            <p class="text-[#4A4543] text-lg">不用超大分值刺激学生，维持经济系统平衡。</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 items-start">
+                        <span class="w-2 h-2 bg-[#C75B5B] rounded-full mt-2.5 shrink-0"></span>
+                        <div>
+                            <strong class="text-[#1A1A1A] font-serif text-xl block mb-1">拒绝制造焦虑</strong>
+                            <p class="text-[#4A4543] text-lg">沟通不使用严厉“扣分”字眼，统一温和表达为“成长提醒”。</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-4 items-start">
+                        <span class="w-2 h-2 bg-[#C75B5B] rounded-full mt-2.5 shrink-0"></span>
+                        <div>
+                            <strong class="text-[#1A1A1A] font-serif text-xl block mb-1">数据隐私红线</strong>
+                            <p class="text-[#4A4543] text-lg">任何对外营销宣讲，<strong class="text-[#C75B5B]">真实学生信息必须打码</strong>。</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 22. 宣讲后要带走什么 -->
+        <div class="slide">
+            <div class="grid grid-cols-2 gap-16 h-full items-center">
+                <div class="anim-up">
+                    <div class="title-group">
+                        <div class="accent-line"></div>
+                        <h2 class="font-serif">宣讲后，您需要带走</h2>
+                        <p>三份落地的材料，与一个行动清单。</p>
+                    </div>
+                    
+                    <div class="mt-8 space-y-10">
+                        <div>
+                            <h3 class="font-serif text-2xl font-bold text-[#1A1A1A] mb-4">必备材料：</h3>
+                            <div class="flex flex-col gap-3">
+                                <span class="text-[#4A4543] text-xl flex items-center gap-3"><i data-lucide="file-text" class="w-5 h-5 text-primary"></i> 一页纸价值速览</span>
+                                <span class="text-[#4A4543] text-xl flex items-center gap-3"><i data-lucide="smartphone" class="w-5 h-5 text-primary"></i> 老师 5 分钟上手卡</span>
+                                <span class="text-[#4A4543] text-xl flex items-center gap-3"><i data-lucide="settings" class="w-5 h-5 text-primary"></i> 校区管理员 SOP</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="font-serif text-2xl font-bold text-[#1A1A1A] mb-4">明日动作清单：</h3>
+                            <ul class="space-y-3 text-[#4A4543] text-xl font-medium">
+                                <li class="flex items-center gap-3"><i data-lucide="square" class="w-5 h-5 opacity-50"></i> 确认演示校区和班级白名单</li>
+                                <li class="flex items-center gap-3"><i data-lucide="square" class="w-5 h-5 opacity-50"></i> 确认专属管理员权限开通</li>
+                                <li class="flex items-center gap-3"><i data-lucide="square" class="w-5 h-5 opacity-50"></i> 敲定第一批种子老师培训时间</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="anim-up delay-2 h-[70vh] bg-[#F5E6D3] rounded-3xl border border-[#E8DDD3] flex flex-col items-center justify-center text-center p-10">
+                    <i data-lucide="download-cloud" class="w-24 h-24 text-[#C4653A] mb-6"></i>
+                    <h3 class="font-serif text-3xl font-bold text-[#1A1A1A] mb-2">材料包已备齐</h3>
+                    <p class="text-[#4A4543] text-lg">会后请在企微群内下载压缩包</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- 23. 答疑 -->
+        <div class="slide">
+            <div class="h-full flex flex-col justify-center items-center text-center anim-up">
+                <h1 class="font-serif text-[6rem] font-bold text-[#1A1A1A] mb-6">Q & A</h1>
+                <p class="text-2xl text-[#4A4543] font-light mb-16 max-w-3xl">
+                    每个角色都清楚<strong class="text-primary border-b-2 border-primary">明天该如何行动</strong>。
+                </p>
+                
+                <div class="claude-card !p-12 w-full max-w-4xl grid grid-cols-2 gap-12 text-left anim-up delay-1">
+                    <div>
+                        <h3 class="font-serif text-2xl font-bold text-[#1A1A1A] mb-6 border-b border-[#E8DDD3] pb-4">现场沟通事项：</h3>
+                        <ul class="space-y-4 text-[#4A4543] text-lg">
+                            <li>1. 哪些校区需要单独补课培训？</li>
+                            <li>2. 哪些班级的花名册还没准备好？</li>
+                            <li>3. 哪些老师的账号需要紧急重置？</li>
+                            <li>4. 家长沟通中还有哪些场景需要补充话术？</li>
+                        </ul>
+                    </div>
+                    <div class="flex flex-col justify-center items-center border-l border-[#E8DDD3] pl-12">
+                        <i data-lucide="message-circle" class="w-16 h-16 text-primary mb-6"></i>
+                        <div class="font-serif text-2xl text-[#1A1A1A]">欢迎各位提问</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- 控制面板 -->
+    <div id="controls">
+        <div class="flex items-center gap-4 text-[15px] text-[#9C9590]">
+            <span class="font-bold text-[#4A4543]">成长中心</span>
+            <span>|</span>
+            <span>成长中心</span>
+        </div>
+        <div class="flex items-center gap-6">
+            <button class="nav-btn" onclick="prevSlide()" id="prevBtn">
+                <i data-lucide="chevron-left" size="18"></i> 上一页
+            </button>
+            <div class="text-[#4A4543] font-medium text-[15px]">
+                <span id="current-page">1</span> / <span id="total-pages">23</span>
+            </div>
+            <button class="nav-btn" onclick="nextSlide()" id="nextBtn">
+                下一页 <i data-lucide="chevron-right" size="18"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        const slides = document.querySelectorAll('.slide');
+        const progressBar = document.getElementById('progress-bar');
+        const currentPageEl = document.getElementById('current-page');
+        const totalPagesEl = document.getElementById('total-pages');
+        let currentSlide = 0;
+        const totalSlides = slides.length;
+
+        totalPagesEl.innerText = totalSlides;
+
+        function updateSlide() {
+            slides.forEach(slide => slide.classList.remove('active'));
+            slides[currentSlide].classList.add('active');
+            
+            const progress = (currentSlide / (totalSlides - 1)) * 100;
+            progressBar.style.width = `${progress}%`;
+            
+            currentPageEl.innerText = currentSlide + 1;
+
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            
+            prevBtn.style.opacity = currentSlide === 0 ? '0.3' : '1';
+            prevBtn.style.pointerEvents = currentSlide === 0 ? 'none' : 'auto';
+            
+            nextBtn.style.opacity = currentSlide === totalSlides - 1 ? '0.3' : '1';
+            nextBtn.style.pointerEvents = currentSlide === totalSlides - 1 ? 'none' : 'auto';
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlide();
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'Space' || e.key === 'Enter') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+
+        updateSlide();
+
+        // ============ 交互式演示脚本 ============
+
+        // Slide 6: 课堂大屏加分交互
+        function classroomScore(el) {
+            const score = el.getAttribute('data-score') || '2';
+            // 高亮被点击的按钮
+            el.style.transform = 'scale(0.9)';
+            setTimeout(() => { el.style.transform = ''; }, 150);
+
+            // 找到王大伟（已选中的学生卡片）显示加分动画
+            const classroomConsole = el.closest('.slide').querySelector('.flex-1.overflow-hidden');
+            if (!classroomConsole) return;
+            const selectedCard = classroomConsole.querySelector('[style*=\"border-color: #ef6f4d\"]') || classroomConsole.querySelector('.grid > div:nth-child(3)');
+            if (!selectedCard) return;
+
+            // 创建飘分元素
+            const floatEl = document.createElement('span');
+            floatEl.className = 'score-float';
+            floatEl.textContent = '+' + score;
+            floatEl.style.color = '#ef6f4d';
+            floatEl.style.fontSize = '22px';
+            const rect = selectedCard.getBoundingClientRect();
+            floatEl.style.left = (rect.left + rect.width/2 - 20) + 'px';
+            floatEl.style.top = (rect.top - 10) + 'px';
+            document.body.appendChild(floatEl);
+
+            // 更新选中卡片分数
+            const scoreSpan = selectedCard.querySelector('div:last-child');
+            if (scoreSpan) {
+                const currentScore = parseInt(scoreSpan.textContent) || 0;
+                scoreSpan.textContent = (currentScore + parseInt(score)) + '分';
+                scoreSpan.style.transform = 'scale(1.4)';
+                scoreSpan.style.transition = 'transform 0.2s ease';
+                setTimeout(() => { scoreSpan.style.transform = 'scale(1)'; }, 200);
+            }
+
+            // 显示撤回提示
+            const toast = classroomConsole.parentElement.querySelector('.absolute.bottom-20');
+            if (toast) {
+                toast.style.opacity = '1';
+                toast.style.animation = 'none';
+                toast.offsetHeight;
+                toast.style.animation = 'popIn 0.3s ease-out';
+                setTimeout(() => { toast.style.opacity = '0.6'; }, 3000);
+            }
+
+            // 移除飘分元素
+            setTimeout(() => { if (floatEl.parentNode) floatEl.parentNode.removeChild(floatEl); }, 1000);
+        }
+
+        // Slide 7: 加分弹窗交互
+        function triggerScorePop(el) {
+            const score = el.getAttribute('data-score') || '2';
+            // 高亮被点击项
+            el.style.transform = 'scale(0.96)';
+            el.style.background = '#FFF5EB';
+            el.style.borderColor = '#D97757';
+            setTimeout(() => {
+                el.style.transform = '';
+                el.style.background = '';
+                el.style.borderColor = '';
+            }, 300);
+
+            // 显示提示
+            const toast = el.closest('.p-4')?.querySelector('#score-toast');
+            if (toast) {
+                toast.classList.remove('hidden');
+                toast.querySelector('span').textContent = '+' + score + ' 已记录 ✓';
+                toast.style.animation = 'none';
+                toast.offsetHeight;
+                toast.style.animation = 'popIn 0.4s ease-out';
+                setTimeout(() => { toast.classList.add('hidden'); }, 2500);
+            }
+        }
+
+        // Slide 11: 导入动画
+        function triggerImport(el) {
+            const zone = el.closest('.import-zone') || el;
+            if (zone.classList.contains('import-filling')) return;
+            zone.classList.add('import-filling');
+
+            // 更新统计数字
+            const slide = zone.closest('.slide');
+            const statNumbers = slide?.querySelectorAll('.text-sm.font-black');
+            if (statNumbers && statNumbers.length >= 3) {
+                setTimeout(() => { statNumbers[0].textContent = '128'; statNumbers[0].style.animation = 'statusFlash 0.4s ease'; }, 1500);
+                setTimeout(() => { statNumbers[1].textContent = '3'; statNumbers[1].style.animation = 'statusFlash 0.4s ease'; }, 1600);
+                setTimeout(() => { statNumbers[2].textContent = '0'; }, 1700);
+            }
+
+            // 更新计数标签
+            const badge = slide?.querySelector('[style*=\"background: #C75B5B\"]');
+            if (badge) setTimeout(() => { badge.textContent = '3 待发货'; badge.style.animation = 'statusFlash 0.4s ease'; }, 1500);
+
+            // 重置
+            setTimeout(() => {
+                zone.classList.remove('import-filling');
+            }, 3000);
+        }
+
+        // Slide 11: 订单状态切换
+        function cycleOrderStatus(el) {
+            const statuses = [
+                { text: '待发货', bg: '#FFFDE8', color: '#D4A853', border: '#D4A853' },
+                { text: '已发货', bg: '#E8F5E8', color: '#6B8F71', border: '#6B8F71' },
+                { text: '已签收', bg: '#E8F0FF', color: '#4D96FF', border: '#4D96FF' },
+                { text: '待发货', bg: '#FFFDE8', color: '#D4A853', border: '#D4A853' }
+            ];
+            const current = el.textContent.trim();
+            const idx = statuses.findIndex(s => s.text === current);
+            const next = statuses[(idx + 1) % statuses.length];
+
+            el.textContent = next.text;
+            el.style.background = next.bg;
+            el.style.color = next.color;
+            el.style.borderColor = next.border;
+            el.classList.add('status-flashing');
+            setTimeout(() => el.classList.remove('status-flashing'), 400);
+
+            // 如果是已发货，也更新旁边的计数
+            const slide = el.closest('.slide');
+            const counterBadge = slide?.querySelector('[style*=\"background: #C75B5B\"]');
+            if (counterBadge && next.text === '已发货') {
+                const currentCount = parseInt(counterBadge.textContent) || 0;
+                if (currentCount > 0) counterBadge.textContent = (currentCount - 1) + ' 待发货';
+            }
+        }
+
+        // Slide 14: 扭蛋机抽蛋
+        function gachaSpin(el, count) {
+            // 禁用按钮
+            const btns = el.closest('.flex').querySelectorAll('.gacha-btn');
+            btns.forEach(b => { b.style.pointerEvents = 'none'; b.style.opacity = '0.6'; });
+
+            // 机器抖动
+            const phoneBody = el.closest('.flex.flex-col');
+            const machineArea = phoneBody?.querySelector('.relative.w-full');
+            if (machineArea) {
+                machineArea.classList.add('gacha-shaking');
+                setTimeout(() => machineArea.classList.remove('gacha-shaking'), 600);
+            }
+
+            // 更新扭蛋券数量
+            const ticketSpan = phoneBody?.querySelector('.text-lg.font-black');
+            if (ticketSpan) {
+                const currentTickets = parseInt(ticketSpan.textContent) || 0;
+                const newTickets = Math.max(0, currentTickets - count);
+                setTimeout(() => {
+                    ticketSpan.textContent = newTickets;
+                    ticketSpan.style.animation = 'statusFlash 0.4s ease';
+                }, 500);
+            }
+
+            // 解锁最近获得的 ? 格子
+            const lockedSlot = phoneBody?.querySelector('[style*=\"border: 1px dashed\"]');
+            if (lockedSlot) {
+                setTimeout(() => {
+                    lockedSlot.textContent = '🎁';
+                    lockedSlot.style.border = 'none';
+                    lockedSlot.style.background = 'linear-gradient(135deg, #FFF0E0, #FFE0C0)';
+                    lockedSlot.style.animation = 'popIn 0.4s ease-out';
+                }, 700);
+            }
+
+            // 恢复按钮
+            setTimeout(() => {
+                btns.forEach(b => { b.style.pointerEvents = 'auto'; b.style.opacity = '1'; });
+            }, 1500);
+        }
+
+        // 学生卡片选中 (Slide 6)
+        document.addEventListener('click', function(e) {
+            const card = e.target.closest('.grid.grid-cols-5 > div');
+            if (!card) return;
+            const grid = card.parentElement;
+            if (!grid || !grid.classList.contains('grid-cols-5')) return;
+
+            // 取消之前的选中
+            grid.querySelectorAll('[style*=\"border-color: #ef6f4d\"]').forEach(c => {
+                c.style.background = 'rgba(255,255,255,0.9)';
+                c.style.borderColor = '#E8DDD3';
+                c.style.borderWidth = '1px';
+                c.style.boxShadow = '';
+            });
+
+            // 选中当前
+            card.style.background = 'rgba(255,240,230,0.95)';
+            card.style.borderColor = '#ef6f4d';
+            card.style.borderWidth = '2px';
+            card.style.boxShadow = '0 0 0 3px rgba(239,111,77,0.15)';
+        });
+    </script>
+</body>
+</html>
